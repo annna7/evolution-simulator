@@ -2,10 +2,10 @@ name: C++ CI
 
 on:
   push:
-    branches: ['*'] # NOTE: replace/update with appropriate branch name(s)
-    tags: ['*']
+    branches: ['main'] # NOTE: replace/update with appropriate branch name(s)
+    tags: ['v_01']
   pull_request:
-    branches: ['*'] # NOTE: replace/update with appropriate branch name(s)
+    branches: ['main'] # NOTE: replace/update with appropriate branch name(s)
   workflow_dispatch:
     inputs:
       build_type:

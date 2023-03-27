@@ -1,6 +1,7 @@
-#include <iostream>
+#include <SFML/Graphics.hpp>
+#include "Game.h"
 
 int main() {
-    std::cout << "Hello, world!\n";
+    Game::getInstance().run();
     return 0;
 }
