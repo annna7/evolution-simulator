@@ -56,6 +56,15 @@ function(set_custom_stdlib_and_sanitizers target add_apple_asan)
     endif()
 endfunction()
 
+include(FetchContent)
+
+FetchContent_Declare(
+        SFML
+        GIT_REPOSITORY https://github.com/SFML/SFML.git
+        GIT_TAG        1bb494f4c0f87a3a57fa688435d8873142aa8ffa
+)
+FetchContent_MakeAvailable(SFML)
+
 ###############################################################################
 
 # external dependencies with FetchContent
@@ -83,8 +92,8 @@ endfunction()
 add_executable(${PROJECT_NAME} main.cpp Game.cpp Utils.cpp Individual.cpp Individual.h Food.cpp Food.h)
 
 ### INCLUDE SFML LIBRARY ###
-find_package(SFML 2.5 COMPONENTS graphics audio REQUIRED)
-target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-audio)
+#find_package(SFML 2.5 COMPONENTS graphics audio REQUIRED)
+#target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-audio)
 ###############################################################################
 
 #include font
@@ -128,9 +137,9 @@ set_custom_stdlib_and_sanitizers(${PROJECT_NAME} true)
 
 # use SYSTEM so clang-tidy does not report warnings from these directories
 #target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ext/<SomeHppLib>/include)
-#target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${<SomeLib>_SOURCE_DIR}/include)
-#target_link_directories(${PROJECT_NAME} PRIVATE ${<SomeLib>_BINARY_DIR}/lib)
-#target_link_libraries(${PROJECT_NAME} <SomeLib>)
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${SFML_SOURCE_DIR}/include)
+target_link_directories(${PROJECT_NAME} PRIVATE ${SFML_BINARY_DIR}/lib)
+target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-audio)
 
 ###############################################################################
 
