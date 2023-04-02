@@ -1,5 +1,6 @@
 #include "Food.h"
 #include "Utils.h"
+#include "Game.h"
 #include <SFML/Graphics.hpp>
 
 Food::Food(int x, int y) {
@@ -8,8 +9,8 @@ Food::Food(int x, int y) {
 }
 
 Food::Food() {
-    this->x = randomIntegerFromInterval(MIN_X, MAX_X);
-    this->y = randomIntegerFromInterval(MIN_Y, MAX_Y);
+    this->x = randomIntegerFromInterval(0, MAX_X);
+    this->y = randomIntegerFromInterval(0, MAX_Y);
 }
 
 Food::Food(const Food &other) {
@@ -18,9 +19,9 @@ Food::Food(const Food &other) {
 }
 
 void Food::draw() const {
-    sf::RectangleShape shape(sf::Vector2f(FOOD_SIZE, FOOD_SIZE));
+    sf::RectangleShape shape(sf::Vector2f((float)FOOD_SIZE, (float)FOOD_SIZE));
     shape.setFillColor(sf::Color::Green);
-    shape.setPosition(x, y);
+    shape.setPosition((float)x, (float)y);
     Game::getInstance().draw(shape);
 }
 

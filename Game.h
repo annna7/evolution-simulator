@@ -8,19 +8,17 @@
 #include <unordered_map>
 #include <utility>
 #include "Individual.h"
+#include "Utils.h"
 #include "Food.h"
 
 class Game {
 public:
     static Game &getInstance();
     void run();
-    int getWidth() const;
-    int getHeight() const;
-    void draw(sf::Drawable &drawable);
-
     virtual ~Game();
-
     friend std::ostream &operator<<(std::ostream &os, const Game &game);
+    friend class Food;
+    friend class Individual;
 
 private:
     int** board;
@@ -36,9 +34,8 @@ private:
     void display();
     void generateIndividuals();
     void drawIndividuals();
-    void printIndividuals();
     void updateIndividuals();
     void generateFood();
     void drawFood();
-    void printFood();
+    void draw(sf::Drawable &drawable);
 };

@@ -8,11 +8,11 @@ public:
     Food(int x, int y);
     Food();
     Food(const Food &other);
-    void draw() const;
-
     friend std::ostream &operator<<(std::ostream &os, const Food &food);
+    friend class Game;
 
 private:
     int x, y;
     int FOOD_SIZE = 5;
+    void draw() const;
 };

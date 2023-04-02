@@ -1,7 +1,7 @@
 #include <iostream>
 #include "Game.h"
-#include "Utils.h"
 #include "Food.h"
+#include "Individual.h"
 #include <SFML/Graphics.hpp>
 #include <chrono>
 
@@ -28,7 +28,7 @@ void Game::display() {
     auto nowTime = std::chrono::high_resolution_clock::now();
     auto nowMS = std::chrono::time_point_cast<std::chrono::milliseconds>(nowTime);
     auto nowValue = nowMS.time_since_epoch().count();
-    sf::Text message("Hello, World !" + std::to_string(nowValue), font);
+    sf::Text message(" EVOLUTION SIMULATOR                      " + std::to_string(nowValue), font);
     window.draw(message);
     drawIndividuals();
     updateIndividuals();
@@ -36,26 +36,14 @@ void Game::display() {
     window.display();
 }
 
-
-//Game::Game() : width(promptUser("Specify the desired window width", 100, 1000)),
-//                height(promptUser("Specify the desired window width", 10, 1000)),
-//                numberOfCells(promptUser("Specify the desired window width", 10, 500)) {
-//    std::cout << "Game created" << std::endl;
-//    window.create(sf::VideoMode(width, height), "Game of Life");
-//    font.loadFromFile("RobotoMono-Regular.ttf");
-//}
-
-
-Game::Game(): width(500),
-               height(500),
-               numberOfIndividuals(1000),
-               quantityOfFood(100)
-               {
+Game::Game() : width(MAX_X),
+               height(MAX_Y),
+               numberOfIndividuals(promptUser("Specify the desired number of individuals", 10, 1000)),
+               quantityOfFood(promptUser("Specify the desired quantity of food", 10, 1500)) {
     board = new int*[height];
     for (int i = 0; i < height; ++i) {
         board[i] = new int[width];
     }
-    srand(time(nullptr));
     std::cout << "Game created" << std::endl;
     window.create(sf::VideoMode(width, height), "Game of Life");
     font.loadFromFile("RobotoMono-Regular.ttf");
@@ -63,13 +51,6 @@ Game::Game(): width(500),
     generateFood();
 }
 
-int Game::getHeight() const {
-    return Game::getInstance().height;
-}
-
-int Game::getWidth() const {
-    return Game::getInstance().width;
-}
 
 void Game::generateIndividuals() {
     for (int i = 0; i < numberOfIndividuals; i++) {
@@ -85,11 +66,6 @@ void Game::generateFood() {
     }
 }
 
-void Game::printIndividuals() {
-    for (int i = 0; i < numberOfIndividuals; i++) {
-        std::cout << individuals[i] << std::endl;
-    }
-}
 
 void Game::drawIndividuals() {
     for (int i = 0; i < numberOfIndividuals; i++) {
@@ -114,12 +90,6 @@ void Game::drawFood() {
     }
 }
 
-void Game::printFood() {
-    for (int i = 0; i < quantityOfFood; i++) {
-        std::cout << foods[i] << std::endl;
-    }
-}
-
 
 Game::~Game() {
     std :: cout << "Destructor called\n";
@@ -134,3 +104,4 @@ std::ostream &operator<<(std::ostream &os, const Game &game) {
        << game.numberOfIndividuals << " quantityOfFood: " << game.quantityOfFood;
     return os;
 }
+

@@ -56,6 +56,24 @@ function(set_custom_stdlib_and_sanitizers target add_apple_asan)
     endif()
 endfunction()
 
+#find_package(OpenGL REQUIRED)
+#
+#if(NOT OPENGL_FOUND)
+#    message("OpenGL not found. Installing...")
+#    include(FetchContent)
+#    FetchContent_Declare(
+#            OpenGL
+#            URL "https://github.com/opencv/opencv/archive/4.1.0.zip"
+#            URL_HASH SHA256=4d2ba9ad0b6c74a17779962b6a0a0a87a6e1787f010042b78ef19d9819b9c931
+#            SOURCE_DIR "${CMAKE_BINARY_DIR}/OpenGL-src"
+#            BINARY_DIR "${CMAKE_BINARY_DIR}/OpenGL-build"
+#    )
+#    FetchContent_MakeAvailable(OpenGL)
+#endif()
+#
+## Use the OpenGL library and headers
+#target_link_libraries(${PROJECT_NAME} OpenGL::GL)
+
 include(FetchContent)
 
 FetchContent_Declare(
@@ -63,7 +81,18 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/SFML/SFML.git
         GIT_TAG        1bb494f4c0f87a3a57fa688435d8873142aa8ffa
 )
+
+
 FetchContent_MakeAvailable(SFML)
+
+#FetchContent_Declare(
+#        OpenGL
+#        URL "https://github.com/opencv/opencv/archive/4.1.0.zip"
+#        URL_HASH SHA256=4d2ba9ad0b6c74a17779962b6a0a0a87a6e1787f010042b78ef19d9819b9c931
+#        SOURCE_DIR "${CMAKE_BINARY_DIR}/OpenGL-src"
+#        BINARY_DIR "${CMAKE_BINARY_DIR}/OpenGL-build"
+#)
+#FetchContent_MakeAvailable(OpenGL)
 
 ###############################################################################
 
@@ -140,6 +169,10 @@ set_custom_stdlib_and_sanitizers(${PROJECT_NAME} true)
 target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${SFML_SOURCE_DIR}/include)
 target_link_directories(${PROJECT_NAME} PRIVATE ${SFML_BINARY_DIR}/lib)
 target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-audio)
+#
+#target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${OPENGL_SOURCE_DIR}/include)
+#target_link_directories(${PROJECT_NAME} PRIVATE ${OPENGL_BINARY_DIR}/lib)
+#target_link_libraries(${PROJECT_NAME} OpenGL::GL)
 
 ###############################################################################
 

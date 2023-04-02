@@ -15,18 +15,10 @@ Individual::Individual(int x, int y, int size, int direction, int speed) {
     this->health = LIFE_TIME;
 }
 
-int Individual::getX() const {
-    return x;
-}
-
-int Individual::getY() const {
-    return y;
-}
-
 Individual::Individual() {
     std :: cout << "Individual created" << std :: endl;
-    this->x = randomIntegerFromInterval(0, 500);
-    this->y = randomIntegerFromInterval(0, 500);
+    this->x = randomIntegerFromInterval(0, MAX_X);
+    this->y = randomIntegerFromInterval(0, MAX_Y);
     this->size = DEFAULT_SIZE;
     this->direction = randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS);
     this->speed = DEFAULT_SPEED;
@@ -43,9 +35,9 @@ Individual::Individual (const Individual &other) {
 }
 
 void Individual::draw() const {
-    sf::CircleShape shape(size);
+    sf::CircleShape shape((float)size);
     shape.setFillColor(sf::Color::Red);
-    shape.setPosition(x, y);
+    shape.setPosition((float)x, (float)y);
     Game::getInstance().draw(shape);
 }
 
@@ -60,24 +52,17 @@ void Individual::move() {
     if (randomIntegerFromInterval(0, RESET_DIRECTION_SEED) == 0) {
         direction = randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS);
     }
-    if (x < MIN_X) {
-        x = MAX_X;
+
+    if (x < 0 || x > MAX_X) {
+        y = 0;
+        x = randomIntegerFromInterval(0, MAX_X);
     }
-    if (x > MAX_X) {
-        x = MIN_X;
-    }
-    if (y < MIN_Y) {
-        y = MAX_Y;
-    }
-    if (y > MAX_Y) {
-        y = MIN_Y;
+    if (y < 0 || y > MAX_Y) {
+        y = 0;
+        y = randomIntegerFromInterval(0, MAX_Y);
     }
 }
 
-//void Individual::kill() {
-//    Game::getInstance().removeIndividual(std::make_pair(x, y));
-//    Individual::~Individual();
-//}
 
 void Individual::update_life_time(int modifier) {
     health += modifier;

@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <random>
-#include "Utils.h"
 
 int promptUser(const std::string& message, int mn, int mx) {
     int input;
@@ -19,4 +18,3 @@ int randomIntegerFromInterval(int mn, int mx) {
     std::uniform_int_distribution<> dis(mn, mx);
     return dis(gen);
 }
-
