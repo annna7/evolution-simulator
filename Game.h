@@ -15,6 +15,8 @@ class Game {
 public:
     static Game &getInstance();
     void run();
+    Game(const Game &other) = delete;
+    Game& operator=(const Game &other) = delete;
     ~Game();
     friend std::ostream &operator<<(std::ostream &os, const Game &game);
     void draw(sf::Drawable &drawable);
