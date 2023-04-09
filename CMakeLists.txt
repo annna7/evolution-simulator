@@ -128,11 +128,11 @@ add_executable(${PROJECT_NAME} main.cpp Game.cpp Utils.cpp Individual.cpp Indivi
 #include font
 # Add font file
 add_custom_command(
-        OUTPUT "${CMAKE_BINARY_DIR}/RobotoMono-Regular.ttf"
-        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/RobotoMono-Regular.ttf" "${CMAKE_BINARY_DIR}/RobotoMono-Regular.ttf"
-        DEPENDS "${CMAKE_SOURCE_DIR}/RobotoMono-Regular.ttf"
+        OUTPUT "${CMAKE_BINARY_DIR}/assets/RobotoMono-Regular.ttf"
+        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/assets/RobotoMono-Regular.ttf" "${CMAKE_BINARY_DIR}/assets/RobotoMono-Regular.ttf"
+        DEPENDS "${CMAKE_SOURCE_DIR}/assets/RobotoMono-Regular.ttf"
 )
-add_custom_target(FontCopy ALL DEPENDS "${CMAKE_BINARY_DIR}/RobotoMono-Regular.ttf")
+add_custom_target(FontCopy ALL DEPENDS "${CMAKE_BINARY_DIR}/assets/RobotoMono-Regular.ttf")
 add_dependencies(${PROJECT_NAME} FontCopy)
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR})
 
@@ -181,3 +181,19 @@ target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-audio)
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
 # install(DIRECTORY some_dir1 some_dir2 DESTINATION bin)
 # install(FILES some_file1.txt some_file2.md DESTINATION bin)
+
+
+find_package(Threads REQUIRED)
+if(APPLE)
+elseif(UNIX)
+    find_package(X11)
+endif()
+
+target_include_directories(${PROJECT_NAME} SYSTEM PRIVATE ${SFML_SOURCE_DIR}/include)
+target_link_directories(${PROJECT_NAME} PRIVATE ${SFML_BINARY_DIR}/lib)
+target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-window sfml-system Threads::Threads)
+
+if(APPLE)
+elseif(UNIX)
+    target_link_libraries(${PROJECT_NAME} X11)
+endif()

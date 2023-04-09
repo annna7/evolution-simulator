@@ -6,33 +6,11 @@
 #include "Utils.h"
 #include "Game.h"
 
-Individual::Individual(int x, int y, int size, int direction, int speed) {
-    this->x = x;
-    this->y = y;
-    this->size = size;
-    this->direction = direction;
-    this->speed = speed;
-    this->health = LIFE_TIME;
-}
+Individual::Individual(int x, int y, int size, int direction, int speed) : x(x), y(y), size(size), speed(speed), direction(direction), health(LIFE_TIME) {}
 
-Individual::Individual() {
-    std :: cout << "Individual created" << std :: endl;
-    this->x = randomIntegerFromInterval(0, MAX_X);
-    this->y = randomIntegerFromInterval(0, MAX_Y);
-    this->size = DEFAULT_SIZE;
-    this->direction = randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS);
-    this->speed = DEFAULT_SPEED;
-    this->health = LIFE_TIME;
-}
+Individual::Individual() : x(randomIntegerFromInterval(0, MAX_X)), y(randomIntegerFromInterval(0, MAX_Y)), size(DEFAULT_SIZE), speed(DEFAULT_SPEED), direction(randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS)), health(LIFE_TIME) {}
 
-Individual::Individual (const Individual &other) {
-    this->x = other.x;
-    this->y = other.y;
-    this->size = other.size;
-    this->direction = other.direction;
-    this->speed = other.speed;
-    this->health = other.health;
-}
+Individual::Individual(const Individual &other) : x(other.x), y(other.y), size(other.size), speed(other.speed), direction(other.direction), health(other.health) {}
 
 void Individual::draw() const {
     sf::CircleShape shape((float)size);
@@ -75,5 +53,19 @@ bool Individual::operator==(const Individual &rhs) const {
            speed == rhs.speed &&
            direction == rhs.direction &&
            health == rhs.health;
+}
+
+Individual &Individual::operator=(const Individual &other) {
+    x = other.x;
+    y = other.y;
+    size = other.size;
+    speed = other.speed;
+    direction = other.direction;
+    health = other.health;
+    return *this;
+}
+
+Individual::~Individual() {
+    std::cout << "Individual destructor called\n";
 }
 

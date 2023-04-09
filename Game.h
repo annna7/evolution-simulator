@@ -15,10 +15,9 @@ class Game {
 public:
     static Game &getInstance();
     void run();
-    virtual ~Game();
+    ~Game();
     friend std::ostream &operator<<(std::ostream &os, const Game &game);
-    friend class Food;
-    friend class Individual;
+    void draw(sf::Drawable &drawable);
 
 private:
     int** board;
@@ -37,5 +36,4 @@ private:
     void updateIndividuals();
     void generateFood();
     void drawFood();
-    void draw(sf::Drawable &drawable);
 };

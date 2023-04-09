@@ -44,11 +44,11 @@ Game::Game() : width(MAX_X),
     for (int i = 0; i < height; ++i) {
         board[i] = new int[width];
     }
-    std::cout << "Game created" << std::endl;
     window.create(sf::VideoMode(width, height), "Game of Life");
-    font.loadFromFile("RobotoMono-Regular.ttf");
+    initializeFont(font);
     generateIndividuals();
     generateFood();
+    std::cout << "Game created" << std::endl;
 }
 
 

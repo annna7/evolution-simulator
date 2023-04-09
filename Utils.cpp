@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <random>
+#include <SFML/Graphics/Font.hpp>
 
 int promptUser(const std::string& message, int mn, int mx) {
     int input;
@@ -17,4 +18,10 @@ int randomIntegerFromInterval(int mn, int mx) {
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(mn, mx);
     return dis(gen);
+}
+
+void initializeFont(sf::Font& font) {
+    if (!font.loadFromFile("assets/RobotoMono-Regular.ttf")) {
+        std::cout << "Error loading font\n";
+    }
 }
