@@ -48,7 +48,8 @@ Game::Game() : width(MAX_X),
     initializeFont(font);
     generateIndividuals();
     generateFood();
-    std::cout << "Game created" << std::endl;
+    window.setVerticalSyncEnabled(true);
+    window.setFramerateLimit(20);
 }
 
 
@@ -69,24 +70,20 @@ void Game::generateFood() {
 
 void Game::drawIndividuals() {
     for (int i = 0; i < numberOfIndividuals; i++) {
-        individuals[i].draw();
+        window.draw(*individuals[i].getShape());
     }
 }
 
-void Game::draw(sf::Drawable &drawable) {
-    window.draw(drawable);
-}
 
 void Game::updateIndividuals() {
     for (int i = 0; i < numberOfIndividuals; i++) {
         individuals[i].move();
-        individuals[i].update_life_time(-1);
     }
 }
 
 void Game::drawFood() {
     for (int i = 0; i < quantityOfFood; i++) {
-        foods[i].draw();
+        window.draw(*foods[i].getShape());
     }
 }
 

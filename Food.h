@@ -2,8 +2,9 @@
 
 #include <SFML/Graphics.hpp>
 #include <ostream>
+#include "Cell.h"
 
-class Food {
+class Food : public Cell {
 public:
     Food(int x, int y);
     Food();
@@ -11,10 +12,8 @@ public:
     Food& operator=(const Food &other);
     ~Food();
     friend std::ostream &operator<<(std::ostream &os, const Food &food);
-    void draw() const;
+    const sf::Shape *getShape() override;
 
 private:
     int x, y;
-
-    const static int FOOD_SIZE = 5;
 };
