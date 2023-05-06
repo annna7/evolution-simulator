@@ -6,11 +6,7 @@
 #include "Utils.h"
 #include "Game.h"
 
-Individual::Individual(int x, int y, int direction, int speed) : x(x), y(y), speed(speed), direction(direction), health(LIFE_TIME) {}
-
-Individual::Individual(int x, int y) : x(x), y(y), speed(DEFAULT_SPEED), direction(randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS - 1)), health(LIFE_TIME) {}
-Individual::Individual(const Individual &other) : x(other.x), y(other.y), speed(other.speed), direction(other.direction), health(other.health) {}
-
+Individual::Individual(int x, int y) : x(x), y(y), health(0), direction(randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS - 1)), speed(SPEED) {}
 
 std::ostream &operator<<(std::ostream &os, const Individual &individual) {
     os << "INDIVIDUAL - x: " << individual.x << " " << "y: " << individual.y << "\n";
@@ -75,4 +71,9 @@ sf::Color Individual::getColor() {
 int Individual::getPosition() const {
     return y * MAX_Y + x;
 }
+
+void Individual::eat() {
+    health++;
+}
+
 

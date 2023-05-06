@@ -39,4 +39,10 @@ private:
     void initializeDisplay();
 
     void updateDisplayMatrix(int i);
+
+    void updateDisplayMatrix(int i, sf::Color color);
+
+    int findFoodInRange(int position, int i);
+
+    int findFoodInRange(Individual *individual, int radius);
 };

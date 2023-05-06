@@ -13,6 +13,7 @@ public:
     const static int CELL_SIZE = 3;
     virtual sf::Color getColor() = 0;
     virtual const sf::Shape *getShape() = 0;
+    virtual ~Cell() = default;
 };
 
 

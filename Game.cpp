@@ -39,6 +39,13 @@ void Game::display() {
             auto* individual = dynamic_cast<Individual*>(board[i]);
             if (individual != nullptr) {
                 individual->move();
+                int coords = findFoodInRange(individual, Individual::VISION);
+                if (coords != -1) {
+                    auto* food = dynamic_cast<Food*>(board[coords]);
+                    if (food != nullptr) {
+                        futureBoard[coords] = individual;
+                    }
+                }
                 futureBoard[individual->getPosition()] = individual;
             } else {
                 futureBoard[i] = board[i];
@@ -46,8 +53,6 @@ void Game::display() {
         }
     }
     window.draw(&displayMatrix[0], displayMatrix.size(), sf::Points);
-    const sf::Shape *rect = new sf::RectangleShape(sf::Vector2f(Cell::CELL_SIZE, Cell::CELL_SIZE));
-    window.draw(*rect);
     window.display();
     board = futureBoard;
     futureBoard.clear();
@@ -99,14 +104,36 @@ void Game::initializeDisplay() {
     }
 }
 
-void Game::updateDisplayMatrix(int i) {
+void Game::updateDisplayMatrix(int i, sf::Color color) {
     int x = i / height;
     int y = i % height;
     for (int j = 0; j < Cell::CELL_SIZE; ++j) {
         for (int k = 0; k < Cell::CELL_SIZE; ++k) {
             displayMatrix[(x * Cell::CELL_SIZE + j) * width * Cell::CELL_SIZE + y * Cell::CELL_SIZE + k] =
-                    sf::Vertex(sf::Vector2f(y * Cell::CELL_SIZE + k, x * Cell::CELL_SIZE + j),
-                               board[i]->getColor());
+                    sf::Vertex(sf::Vector2f(y * Cell::CELL_SIZE + k, x * Cell::CELL_SIZE + j), color);
         }
     }
+}
+
+void Game::updateDisplayMatrix(int i) {
+    updateDisplayMatrix(i, board[i]->getColor());
+}
+
+int Game::findFoodInRange(Individual *individual, int radius) {
+    int position = individual->getPosition();
+    int x = position / height;
+    int y = position % height;
+    // check in the circle centered at (x, y) with radius i
+    for (int j = x - radius; j <= x + radius; ++j) {
+        for (int k = y - radius; k <= y + radius; ++k) {
+            int newPos = j * height + k;
+            if (newPos >= 0 && newPos < width * height && board[newPos] != nullptr) {
+                auto* food = dynamic_cast<Food*>(board[newPos]);
+                if (food != nullptr) {
+                    return newPos;
+                }
+            }
+        }
+    }
+    return -1;
 }
