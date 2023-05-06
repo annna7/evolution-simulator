@@ -26,3 +26,7 @@ const sf::Shape *Food::getShape() {
     shape->setPosition((float)x, (float)y);
     return shape;
 }
+
+sf::Color Food::getColor() {
+    return sf::Color::Green;
+}

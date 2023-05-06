@@ -25,3 +25,18 @@ void initializeFont(sf::Font& font) {
         std::cout << "Error loading font\n";
     }
 }
+
+// generate size distinct random numbers in interval [mn, mx)
+// using the Fisher Yates shuffle algorithm
+std::vector<int> generateRandomArray(int size, int mn, int mx) {
+    std::vector<int> v;
+    for (int i = mn; i < mx; i++) {
+        v.push_back(i);
+    }
+    for (int i = 0; i < size; i++) {
+        int j = randomIntegerFromInterval(i, mx - 1);
+        std::swap(v[i], v[j]);
+    }
+    v.resize(size);
+    return v;
+}

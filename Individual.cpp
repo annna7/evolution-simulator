@@ -8,8 +8,7 @@
 
 Individual::Individual(int x, int y, int direction, int speed) : x(x), y(y), speed(speed), direction(direction), health(LIFE_TIME) {}
 
-Individual::Individual() : x(randomIntegerFromInterval(0, MAX_X)), y(randomIntegerFromInterval(0, MAX_Y)), speed(DEFAULT_SPEED), direction(randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS)), health(LIFE_TIME) {}
-
+Individual::Individual(int x, int y) : x(x), y(y), speed(DEFAULT_SPEED), direction(randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS - 1)), health(LIFE_TIME) {}
 Individual::Individual(const Individual &other) : x(other.x), y(other.y), speed(other.speed), direction(other.direction), health(other.health) {}
 
 
@@ -27,15 +26,15 @@ void Individual::move() {
 
     const int OFFSET = 10;
     if (x < 0) {
-        x = MAX_X - OFFSET;
-    } else if (x > MAX_X) {
         x = OFFSET;
+    } else if (x > MAX_X) {
+        x = MAX_X - OFFSET;
     }
 
     if (y < 0) {
-        y = MAX_Y - OFFSET;
-    } else if (y > MAX_Y) {
         y = OFFSET;
+    } else if (y > MAX_Y) {
+        y = MAX_Y - OFFSET;
     }
 }
 
@@ -67,5 +66,13 @@ const sf::Shape *Individual::getShape() {
     shape->setFillColor(sf::Color::Red);
     shape->setPosition((float)x, (float)y);
     return shape;
+}
+
+sf::Color Individual::getColor() {
+    return sf::Color::Red;
+}
+
+int Individual::getPosition() const {
+    return y * MAX_Y + x;
 }
 

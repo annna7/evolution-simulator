@@ -2,6 +2,7 @@
 #include "Game.h"
 #include "Food.h"
 #include "Individual.h"
+#include "Cell.h"
 #include <SFML/Graphics.hpp>
 #include <chrono>
 
@@ -30,75 +31,82 @@ void Game::display() {
     auto nowValue = nowMS.time_since_epoch().count();
     sf::Text message(" EVOLUTION SIMULATOR                      " + std::to_string(nowValue), font);
     window.draw(message);
-    drawIndividuals();
-    updateIndividuals();
-    drawFood();
+    displayMatrix.clear();
+    displayMatrix.resize(width * height * Cell::CELL_SIZE * Cell::CELL_SIZE);
+    for (int i = 0; i < width * height; i++) {
+        if (board[i] != nullptr) {
+            updateDisplayMatrix(i);
+            auto* individual = dynamic_cast<Individual*>(board[i]);
+            if (individual != nullptr) {
+                individual->move();
+                futureBoard[individual->getPosition()] = individual;
+            } else {
+                futureBoard[i] = board[i];
+            }
+        }
+    }
+    window.draw(&displayMatrix[0], displayMatrix.size(), sf::Points);
+    const sf::Shape *rect = new sf::RectangleShape(sf::Vector2f(Cell::CELL_SIZE, Cell::CELL_SIZE));
+    window.draw(*rect);
     window.display();
+    board = futureBoard;
+    futureBoard.clear();
+    futureBoard.resize(width * height);
 }
 
 Game::Game() : width(MAX_X),
                height(MAX_Y),
                numberOfIndividuals(promptUser("Specify the desired number of individuals", 10, 1000)),
                quantityOfFood(promptUser("Specify the desired quantity of food", 10, 1500)) {
-    board = new int*[height];
-    for (int i = 0; i < height; ++i) {
-        board[i] = new int[width];
-    }
-    window.create(sf::VideoMode(width, height), "Game of Life");
+    window.create(sf::VideoMode(width * Cell::CELL_SIZE, height * Cell::CELL_SIZE), "Game of Life");
     initializeFont(font);
-    generateIndividuals();
-    generateFood();
+    board.resize(width * height);
+    futureBoard.resize(width * height);
+    generateCreatures();
+    initializeDisplay();
     window.setVerticalSyncEnabled(true);
-    window.setFramerateLimit(20);
+    window.setFramerateLimit(15);
 }
 
-
-void Game::generateIndividuals() {
+void Game::generateCreatures() {
+    auto randomPositions = generateRandomArray(numberOfIndividuals + quantityOfFood, 0, width * height);
     for (int i = 0; i < numberOfIndividuals; i++) {
-        Individual individual = Individual();
-        individuals.push_back(individual);
+        Cell *individual = new Individual(randomPositions[i] / height, randomPositions[i] % height);
+        board[randomPositions[i]] = individual;
+    }
+    for (int i = numberOfIndividuals; i < numberOfIndividuals + quantityOfFood; i++) {
+        Cell *food = new Food(randomPositions[i] / height, randomPositions[i] % height);
+        board[randomPositions[i]] = food;
     }
 }
-
-void Game::generateFood() {
-    for (int i = 0; i < quantityOfFood; i++) {
-        Food food = Food();
-        foods.push_back(food);
-    }
-}
-
-
-void Game::drawIndividuals() {
-    for (int i = 0; i < numberOfIndividuals; i++) {
-        window.draw(*individuals[i].getShape());
-    }
-}
-
-
-void Game::updateIndividuals() {
-    for (int i = 0; i < numberOfIndividuals; i++) {
-        individuals[i].move();
-    }
-}
-
-void Game::drawFood() {
-    for (int i = 0; i < quantityOfFood; i++) {
-        window.draw(*foods[i].getShape());
-    }
-}
-
 
 Game::~Game() {
-    std :: cout << "Destructor called\n";
-    for (int i = 0 ; i < height; ++i) {
-        delete[] board[i];
-    }
-    delete[] board;
+    std::cout << "Destructor called\n";
 }
 
 std::ostream &operator<<(std::ostream &os, const Game &game) {
-    os << "board: " << game.board << " width: " << game.width << " height: " << game.height << " numberOfIndividuals: "
+    os << " width: " << game.width << " height: " << game.height << " numberOfIndividuals: "
        << game.numberOfIndividuals << " quantityOfFood: " << game.quantityOfFood;
     return os;
 }
 
+void Game::initializeDisplay() {
+    displayMatrix.resize(width * height * Cell::CELL_SIZE * Cell::CELL_SIZE);
+    for (int i = 0; i < height * Cell::CELL_SIZE; ++i) {
+        for (int j = 0; j < width * Cell::CELL_SIZE; ++j) {
+            displayMatrix[i * width * Cell::CELL_SIZE + j] = sf::Vertex(sf::Vector2f(j, i), sf::Color::Black);
+        }
+    }
+}
+
+void Game::updateDisplayMatrix(int i) {
+    int x = i / height;
+    int y = i % height;
+    for (int j = 0; j < Cell::CELL_SIZE; ++j) {
+        for (int k = 0; k < Cell::CELL_SIZE; ++k) {
+            displayMatrix[(x * Cell::CELL_SIZE + j) * width * Cell::CELL_SIZE + y * Cell::CELL_SIZE + k] =
+                    sf::Vertex(sf::Vector2f(y * Cell::CELL_SIZE + k, x * Cell::CELL_SIZE + j),
+                               board[i]->getColor());
+        }
+    }
+}

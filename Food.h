@@ -13,6 +13,7 @@ public:
     ~Food();
     friend std::ostream &operator<<(std::ostream &os, const Food &food);
     const sf::Shape *getShape() override;
+    sf::Color getColor() override;
 
 private:
     int x, y;

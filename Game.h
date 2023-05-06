@@ -10,6 +10,7 @@
 #include "Individual.h"
 #include "Utils.h"
 #include "Food.h"
+#include "Cell.h"
 
 class Game {
 public:
@@ -19,23 +20,23 @@ public:
     Game& operator=(const Game &other) = delete;
     ~Game();
     friend std::ostream &operator<<(std::ostream &os, const Game &game);
-    void draw(sf::Drawable &drawable);
 
 private:
-    int** board;
+    std::vector<Cell*> board;
+    std::vector<Cell*> futureBoard;
+
+    std::vector<sf::Vertex> displayMatrix;
+
     int width;
     int height;
     int numberOfIndividuals;
     int quantityOfFood;
     sf::Font font;
     sf::RenderWindow window;
-    std::vector<Individual> individuals;
-    std::vector<Food>foods;
     Game();
+    void generateCreatures();
     void display();
-    void generateIndividuals();
-    void drawIndividuals();
-    void updateIndividuals();
-    void generateFood();
-    void drawFood();
+    void initializeDisplay();
+
+    void updateDisplayMatrix(int i);
 };
