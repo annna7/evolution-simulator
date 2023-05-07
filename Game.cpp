@@ -19,6 +19,23 @@ Game &Game::getInstance() {
     return instance;
 }
 
+// Total number of survivors: p1 * x1 + p2 * x2 + ...
+// Total number of individuals: x1 + x2 + ...
+// Number of individuals of given species, proportional to their fitness: (p1 * x1 / (total number of survivors)) * (total number of individuals)
+std::unordered_map<int, int> Game::computeNewGeneration() {
+    std::unordered_map<int, int> newGeneration;
+    int totalIndividuals = 0;
+    int totalSurvivors = 0;
+    for (auto &it : fitnessMap) {
+        totalSurvivors += it.second.second;
+        totalIndividuals += it.second.first;
+    }
+    for (auto &it : fitnessMap) {
+        newGeneration[it.first] = it.second.first == 0 ? 0 : (int) ((1.0 * it.second.second / it.second.first) * it.second.first * totalIndividuals) / totalSurvivors;
+    }
+    return newGeneration;
+}
+
 void Game::computeFitness() {
     for (auto &cell : board) {
         if (cell != nullptr) {
@@ -26,11 +43,11 @@ void Game::computeFitness() {
             // for instance, if I pass a Redbull, check if the cell is a Redbull
             auto individualCell = dynamic_pointer_cast<Individual>(cell);
             if (individualCell != nullptr) {
-                fitnessCache[individualCell->getType()].first += 1;
+                fitnessMap[individualCell->getType()].first += 1;
                 if (!individualCell->checkIfAlive()) {
                     board[individualCell->getPosition()] = nullptr;
                 } else {
-                    fitnessCache[individualCell->getType()].second += 1;
+                    fitnessMap[individualCell->getType()].second += 1;
                 }
             }
         }
@@ -47,6 +64,10 @@ void Game::computeFitness() {
 
 void Game::endEpoch() {
     epochCounter++;
+    computeFitness();
+    showStatistics();
+    resetGeneration(computeNewGeneration());
+    isPaused = true;
 }
 
 void Game::menuDisplay() {
@@ -66,18 +87,16 @@ void Game::run() {
         }
         menuDisplay();
         if (!isPaused) {
-            if ((getCurrentTime() - initialTime) >= EPOCH_DURATION) {
+            sf::Time elapsed = clock.getElapsedTime(); // get the elapsed time since the last call to getElapsedTime()
+            if (elapsed.asMilliseconds() >= EPOCH_DURATION) {
                 endEpoch();
-                computeFitness();
-                showStatistics();
-                isPaused = true;
             } else {
                 display();
             }
         } else {
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
                 isPaused = false;
-                initialTime = getCurrentTime();
+                clock.restart();
             }
         }
         window.display();
@@ -138,17 +157,17 @@ Game::Game() : width(MAX_X),
                quantityOfFood(promptUser("[DARK GREEN] Specify the desired quantity of food", 0,1500)) {
     window.create(sf::VideoMode(width * Cell::CELL_SIZE, height * Cell::CELL_SIZE + BOTTOM_BAR_HEIGHT), "Game of Life");
     initializeFont(font);
-    board.resize(width * height);
-    futureBoard.resize(width * height);
     epochCounter = 0;
-    initialTime = getCurrentTime();
-    generateCreatures();
-    initializeDisplay();
+    resetBoard();
     window.setVerticalSyncEnabled(true);
     window.setFramerateLimit(15);
 }
 
-void Game::generateCreatures() {
+void Game::generateCells() {
+    board.clear();
+    futureBoard.clear();
+    board.resize(width * height);
+    futureBoard.resize(width * height);
     int totalIndividuals = keystoneNumber + clairvoyantNumber + redBullNumber;
     auto randomPositions = generateRandomArray(totalIndividuals + quantityOfFood, 0, width * height);
     for (int i = 0; i < keystoneNumber; i++) {
@@ -242,17 +261,43 @@ int Game::findFoodInRange(const std::shared_ptr<Individual>& individual, int rad
     return -1;
 }
 
+int Game::getTotalSurvivalRate() {
+    int totalSurvivalRate = 0;
+    int totalIndividuals = 0;
+    for (auto &i : raceDict) {
+        totalSurvivalRate += fitnessMap[i.first].second;
+        totalIndividuals += fitnessMap[i.first].first;
+    }
+    return (int) (100.0 * totalSurvivalRate / totalIndividuals);
+}
+
 void Game::showStatistics() {
     sf::Text text;
     text.setFont(font);
     text.setCharacterSize(12);
     text.setFillColor(sf::Color::White);
     text.setPosition(20, height * Cell::CELL_SIZE + 20);
-    std::string output = "";
+    std::string output;
     for (auto &i : raceDict) {
         // append to text
-        output += i.second +" - " + getPercentage(fitnessCache[i.first].second, fitnessCache[i.first].first) + "   ";
+        output += i.second + " - " + getPercentage(fitnessMap[i.first].second, fitnessMap[i.first].first) + "( " + std::to_string(fitnessMap[i.first].second) + " / " + std::to_string(fitnessMap[i.first].first) + " )\n";
     }
+    output += "Total survival rate: " + std::to_string(getTotalSurvivalRate()) + "%\n";
     text.setString(output);
     window.draw(text);
+}
+
+void Game::resetGeneration(std::unordered_map<int, int> generation) {
+    std::cout << "Resetting generation\n" << generation[KEY_STONE] << " " << generation[CLAIRVOYANT] << " " << generation[RED_BULL] << "\n";
+    keystoneNumber = generation[KEY_STONE];
+    clairvoyantNumber = generation[CLAIRVOYANT];
+    redBullNumber = generation[RED_BULL];
+    resetBoard();
+}
+
+void Game::resetBoard() {
+    // reset generation
+    fitnessMap.clear();
+    generateCells();
+    initializeDisplay();
 }

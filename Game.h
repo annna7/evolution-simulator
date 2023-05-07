@@ -23,7 +23,7 @@ public:
     friend std::ostream &operator<<(std::ostream &os, const Game &game);
 
 private:
-    std::unordered_map<int, std::pair<int, int>> fitnessCache;
+    std::unordered_map<int, std::pair<int, int>> fitnessMap;
     std::vector<std::shared_ptr<Cell>> board;
     std::vector<std::shared_ptr<Cell>> futureBoard;
     std::vector<sf::Vertex> displayMatrix;
@@ -33,26 +33,31 @@ private:
     int keystoneNumber, clairvoyantNumber, redBullNumber;
     int quantityOfFood;
 
+    sf::Clock clock;
     sf::Font font;
     sf::RenderWindow window;
 
     Game();
-    void generateCreatures();
+    void generateCells();
     void display();
     void initializeDisplay();
     void updateDisplayMatrix(int i);
     void updateDisplayMatrix(int i, sf::Color color);
     bool isPaused = false;
     int epochCounter = 0;
-    static const int EPOCH_DURATION = 3000;
-    static const int BOTTOM_BAR_HEIGHT = 50;
+    static const int EPOCH_DURATION = 2000;
+    static const int BOTTOM_BAR_HEIGHT = 100;
     void endEpoch();
     void menuDisplay();
-    long long initialTime;
     void computeFitness();
     const static std::unordered_map<int, std::string> raceDict;
     void showStatistics();
     int findFreeSpot(const std::shared_ptr<Individual>&, int radius);
     int findFoodInRange(const std::shared_ptr<Individual>&, int radius);
 
+    std::unordered_map<int, int> computeNewGeneration();
+    void resetGeneration(std::unordered_map<int, int> generation);
+    void resetBoard();
+
+    int getTotalSurvivalRate();
 };

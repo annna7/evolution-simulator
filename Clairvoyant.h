@@ -11,7 +11,7 @@
 class Clairvoyant : public Individual {
 public:
     Clairvoyant(int x, int y) : Individual(x, y) {}
-    [[nodiscard]] int getHunger() const override { return 2; }
+    [[nodiscard]] int getHunger() const override { return 3; }
     [[nodiscard]] int getVision() const override { return 5; }
     [[nodiscard]] sf::Color getColor() override { return sf::Color::Blue; }
     [[nodiscard]] int getType() const override { return CLAIRVOYANT; }
