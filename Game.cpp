@@ -24,7 +24,7 @@ void Game::computeFitness() {
         if (cell != nullptr) {
             // check if the cell has the same type as individual
             // for instance, if I pass a Redbull, check if the cell is a Redbull
-            auto *individualCell = dynamic_cast<Individual *>(cell);
+            auto individualCell = dynamic_pointer_cast<Individual>(cell);
             if (individualCell != nullptr) {
                 fitnessCache[individualCell->getType()].first += 1;
                 if (!individualCell->checkIfAlive()) {
@@ -92,10 +92,10 @@ void Game::display() {
     for (int i = 0; i < width * height; i++) {
         if (board[i] != nullptr) {
             updateDisplayMatrix(i);
-            auto* individual = dynamic_cast<Individual*>(board[i]);
+            auto individual = dynamic_pointer_cast<Individual>(board[i]);
             if (individual != nullptr) {
                 int coords = findFoodInRange(individual, individual->getVision());
-                if (coords != -1 && dynamic_cast<Individual*>(futureBoard[coords]) == nullptr) {
+                if (coords != -1 && dynamic_pointer_cast<Individual>(futureBoard[coords]) == nullptr) {
                     futureBoard[coords] = individual;
                     individual->setCoords(coords / height, coords % height);
                     individual->eat();
@@ -104,17 +104,17 @@ void Game::display() {
                     int newPosition = individual->getPosition();
                     if (futureBoard[newPosition] == nullptr) {
                         futureBoard[newPosition] = individual;
-                    } else if (dynamic_cast<Individual*>(futureBoard[newPosition])){
+                    } else if (dynamic_pointer_cast<Individual>(futureBoard[newPosition])){
                         int freePosition = findFreeSpot(individual, 5);
                         if (freePosition != -1) {
                             futureBoard[freePosition] = individual;
                         }
-                    } else {
+                    } else if (coords != -1) {
                         futureBoard[coords] = individual;
                     }
                 }
             } else {
-                auto* individualEaten = dynamic_cast<Individual*>(futureBoard[i]);
+                auto individualEaten = dynamic_pointer_cast<Individual>(futureBoard[i]);
                 if (!individualEaten) {
                     futureBoard[i] = board[i];
                 }
@@ -146,20 +146,16 @@ Game::Game() : width(MAX_X),
 void Game::generateCreatures() {
     auto randomPositions = generateRandomArray(numberOfIndividuals + quantityOfFood, 0, width * height);
     for (int i = 0; i < numberOfIndividuals; i++) {
-        Cell *individual = new Clairvoyant(randomPositions[i] / height, randomPositions[i] % height);
+        std::shared_ptr<Cell> individual = std::make_shared<RedBull>(randomPositions[i] / height, randomPositions[i] % height);
         board[randomPositions[i]] = individual;
     }
     for (int i = numberOfIndividuals; i < numberOfIndividuals + quantityOfFood; i++) {
-        Cell *food = new Food(randomPositions[i] / height, randomPositions[i] % height);
+        std::shared_ptr<Food> food = std::make_shared<Food>(randomPositions[i] / height, randomPositions[i] % height);
         board[randomPositions[i]] = food;
     }
-
 }
 
 Game::~Game() {
-    for (auto &cell : board) {
-        delete cell;
-    }
     std::cout << "Destructor called\n";
 }
 
@@ -197,7 +193,7 @@ void Game::updateDisplayMatrix(int i) {
     }
 }
 
-int Game::findFreeSpot(Individual *individual, int radius) {
+int Game::findFreeSpot(const std::shared_ptr<Individual>& individual, int radius) {
     int position = individual->getPosition();
     int x = position / height;
     int y = position % height;
@@ -213,7 +209,7 @@ int Game::findFreeSpot(Individual *individual, int radius) {
     return -1;
 }
 
-int Game::findFoodInRange(Individual *individual, int radius) {
+int Game::findFoodInRange(const std::shared_ptr<Individual>& individual, int radius) {
     int position = individual->getPosition();
     int x = position / height;
     int y = position % height;
@@ -222,8 +218,8 @@ int Game::findFoodInRange(Individual *individual, int radius) {
         for (int k = y - radius; k <= y + radius; ++k) {
             int newPos = j * height + k;
             if (newPos >= 0 && newPos < width * height && board[newPos] != nullptr) {
-                auto* food = dynamic_cast<Food*>(board[newPos]);
-                if (food != nullptr && dynamic_cast<Individual*>(futureBoard[newPos]) == nullptr) {
+                auto food = std::dynamic_pointer_cast<Food>(board[newPos]);
+                if (food && !std::dynamic_pointer_cast<Individual>(futureBoard[newPos])) {
                     return newPos;
                 }
             }

@@ -7,6 +7,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <utility>
+#include <memory>
 #include "Individual.h"
 #include "Utils.h"
 #include "Food.h"
@@ -23,8 +24,8 @@ public:
 
 private:
     std::unordered_map<int, std::pair<int, int>> fitnessCache;
-    std::vector<Cell*> board;
-    std::vector<Cell*> futureBoard;
+    std::vector<std::shared_ptr<Cell>> board;
+    std::vector<std::shared_ptr<Cell>> futureBoard;
     std::vector<sf::Vertex> displayMatrix;
 
     int width;
@@ -41,22 +42,17 @@ private:
     void initializeDisplay();
     void updateDisplayMatrix(int i);
     void updateDisplayMatrix(int i, sf::Color color);
-    int findFoodInRange(Individual *individual, int radius);
-
     bool isPaused = false;
     int epochCounter = 0;
     static const int EPOCH_DURATION = 3000;
     static const int BOTTOM_BAR_HEIGHT = 50;
     void endEpoch();
-
     void menuDisplay();
-
     long long initialTime;
-
     void computeFitness();
     const static std::unordered_map<int, std::string> raceDict;
-
     void showStatistics();
+    int findFreeSpot(const std::shared_ptr<Individual>&, int radius);
+    int findFoodInRange(const std::shared_ptr<Individual>&, int radius);
 
-    int findFreeSpot(Individual *individual, int radius);
 };
