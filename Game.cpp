@@ -50,8 +50,8 @@ void Game::endEpoch() {
 }
 
 void Game::menuDisplay() {
-    sf::Text message = sf::Text("Epoch: " + std::to_string(epochCounter) + " has ended! Press SPACE to continue.", font);
-    message.setPosition(70, height * Cell::CELL_SIZE);
+    sf::Text message = sf::Text("Epoch: " + std::to_string(epochCounter) + " has ended! Press SPACE to spawn an evolved generation!", font);
+    message.setPosition(20, height * Cell::CELL_SIZE);
     message.setCharacterSize(15);
     window.draw(message);
 }
@@ -243,7 +243,16 @@ int Game::findFoodInRange(const std::shared_ptr<Individual>& individual, int rad
 }
 
 void Game::showStatistics() {
+    sf::Text text;
+    text.setFont(font);
+    text.setCharacterSize(12);
+    text.setFillColor(sf::Color::White);
+    text.setPosition(20, height * Cell::CELL_SIZE + 20);
+    std::string output = "";
     for (auto &i : raceDict) {
-        std::cout << i.second << " - " << getPercentage(fitnessCache[i.first].second, fitnessCache[i.first].first) << std::endl;
+        // append to text
+        output += i.second +" - " + getPercentage(fitnessCache[i.first].second, fitnessCache[i.first].first) + "   ";
     }
+    text.setString(output);
+    window.draw(text);
 }
