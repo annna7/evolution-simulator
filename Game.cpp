@@ -102,6 +102,9 @@ void Game::display() {
                 } else {
                     individual->move();
                     int newPosition = individual->getPosition();
+                    if (newPosition > width * height - 1) {
+                        newPosition = newPosition % (width * height);
+                    }
                     if (futureBoard[newPosition] == nullptr) {
                         futureBoard[newPosition] = individual;
                     } else if (dynamic_pointer_cast<Individual>(futureBoard[newPosition])){
@@ -129,10 +132,10 @@ void Game::display() {
 
 Game::Game() : width(MAX_X),
                height(MAX_Y),
-               keystoneNumber(promptUser("Specify the desired number of Keystone's (no special abilities, but can sustain on a small quantity of food):", 0, 600)),
-               clairvoyantNumber(promptUser("Specify the desired number of Clairvoyant's (can spot food from afar):", 0, 600)),
-               redBullNumber(promptUser("Specify the desired number of RedBull's (fast on their feet, but high hunger):", 0, 600)),
-               quantityOfFood(promptUser("Specify the desired quantity of food", 0,1500)) {
+               keystoneNumber(promptUser("[YELLOW] Specify the desired number of Keystone's (no special abilities, but can sustain on a small quantity of food):", 0, 600)),
+               clairvoyantNumber(promptUser("[BLUE] Specify the desired number of Clairvoyant's (can spot food from afar):", 0, 600)),
+               redBullNumber(promptUser("[RED] Specify the desired number of RedBull's (fast on their feet, but high hunger):", 0, 600)),
+               quantityOfFood(promptUser("[DARK GREEN] Specify the desired quantity of food", 0,1500)) {
     window.create(sf::VideoMode(width * Cell::CELL_SIZE, height * Cell::CELL_SIZE + BOTTOM_BAR_HEIGHT), "Game of Life");
     initializeFont(font);
     board.resize(width * height);
