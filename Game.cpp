@@ -3,12 +3,53 @@
 #include "Food.h"
 #include "Individual.h"
 #include "Cell.h"
+#include "RedBull.h"
 #include <SFML/Graphics.hpp>
-#include <chrono>
+
+const std::unordered_map<int, std::string> Game::raceDict = {
+        {RED_BULL, "Redbull"}
+};
 
 Game &Game::getInstance() {
     static Game instance;
     return instance;
+}
+
+void Game::computeFitness() {
+    for (auto &cell : board) {
+        if (cell != nullptr) {
+            // check if the cell has the same type as individual
+            // for instance, if I pass a Redbull, check if the cell is a Redbull
+            auto *individualCell = dynamic_cast<Individual *>(cell);
+            if (individualCell != nullptr) {
+                fitnessCache[individualCell->getType()].first += 1;
+                if (!individualCell->checkIfAlive()) {
+                    board[individualCell->getPosition()] = nullptr;
+                } else {
+                    fitnessCache[individualCell->getType()].second += 1;
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < width * height; ++i) {
+        updateDisplayMatrix(i);
+    }
+
+    window.clear();
+    window.draw(&displayMatrix[0], displayMatrix.size(), sf::Points);
+    window.display();
+}
+
+void Game::endEpoch() {
+    epochCounter++;
+}
+
+void Game::menuDisplay() {
+    sf::Text message = sf::Text("Epoch: " + std::to_string(epochCounter) + " has ended! Press SPACE to continue.", font);
+    message.setPosition(70, height * Cell::CELL_SIZE);
+    message.setCharacterSize(15);
+    window.draw(message);
 }
 
 void Game::run() {
@@ -19,41 +60,65 @@ void Game::run() {
                 window.close();
             }
         }
-        display();
+        menuDisplay();
+        if (!isPaused) {
+            if ((getCurrentTime() - initialTime) >= EPOCH_DURATION) {
+                endEpoch();
+                computeFitness();
+                showStatistics();
+                isPaused = true;
+            } else {
+                display();
+            }
+        } else {
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+                isPaused = false;
+                initialTime = getCurrentTime();
+            }
+        }
+        window.display();
     }
 }
 
 
 void Game::display() {
     window.clear();
-    auto nowTime = std::chrono::high_resolution_clock::now();
-    auto nowMS = std::chrono::time_point_cast<std::chrono::milliseconds>(nowTime);
-    auto nowValue = nowMS.time_since_epoch().count();
-    sf::Text message(" EVOLUTION SIMULATOR                      " + std::to_string(nowValue), font);
-    window.draw(message);
     displayMatrix.clear();
     displayMatrix.resize(width * height * Cell::CELL_SIZE * Cell::CELL_SIZE);
     for (int i = 0; i < width * height; i++) {
         if (board[i] != nullptr) {
             updateDisplayMatrix(i);
             auto* individual = dynamic_cast<Individual*>(board[i]);
+            // daca inainte pe tabla era un individ
             if (individual != nullptr) {
-                individual->move();
-                int coords = findFoodInRange(individual, Individual::VISION);
-                if (coords != -1) {
-                    auto* food = dynamic_cast<Food*>(board[coords]);
-                    if (food != nullptr) {
+                int coords = findFoodInRange(individual, individual->getVision());
+                if (coords != -1 && dynamic_cast<Individual*>(futureBoard[coords]) == nullptr) {
+                    futureBoard[coords] = individual;
+                    individual->setCoords(coords / height, coords % height);
+                    individual->eat();
+                } else {
+                    individual->move();
+                    int newPosition = individual->getPosition();
+                    if (futureBoard[newPosition] == nullptr) {
+                        futureBoard[newPosition] = individual;
+                    } else if (dynamic_cast<Individual*>(futureBoard[newPosition])){
+                        int freePosition = findFreeSpot(individual, 5);
+                        if (freePosition != -1) {
+                            futureBoard[freePosition] = individual;
+                        }
+                    } else {
                         futureBoard[coords] = individual;
                     }
                 }
-                futureBoard[individual->getPosition()] = individual;
             } else {
-                futureBoard[i] = board[i];
+                auto* individualEaten = dynamic_cast<Individual*>(futureBoard[i]);
+                if (!individualEaten) {
+                    futureBoard[i] = board[i];
+                }
             }
         }
     }
     window.draw(&displayMatrix[0], displayMatrix.size(), sf::Points);
-    window.display();
     board = futureBoard;
     futureBoard.clear();
     futureBoard.resize(width * height);
@@ -62,11 +127,13 @@ void Game::display() {
 Game::Game() : width(MAX_X),
                height(MAX_Y),
                numberOfIndividuals(promptUser("Specify the desired number of individuals", 10, 1000)),
-               quantityOfFood(promptUser("Specify the desired quantity of food", 10, 1500)) {
-    window.create(sf::VideoMode(width * Cell::CELL_SIZE, height * Cell::CELL_SIZE), "Game of Life");
+               quantityOfFood(promptUser("Specify the desired quantity of food", 0,1500)) {
+    window.create(sf::VideoMode(width * Cell::CELL_SIZE, height * Cell::CELL_SIZE + BOTTOM_BAR_HEIGHT), "Game of Life");
     initializeFont(font);
     board.resize(width * height);
     futureBoard.resize(width * height);
+    epochCounter = 0;
+    initialTime = getCurrentTime();
     generateCreatures();
     initializeDisplay();
     window.setVerticalSyncEnabled(true);
@@ -75,14 +142,23 @@ Game::Game() : width(MAX_X),
 
 void Game::generateCreatures() {
     auto randomPositions = generateRandomArray(numberOfIndividuals + quantityOfFood, 0, width * height);
+    int counter = 0;
     for (int i = 0; i < numberOfIndividuals; i++) {
-        Cell *individual = new Individual(randomPositions[i] / height, randomPositions[i] % height);
+        Cell *individual = new RedBull(randomPositions[i] / height, randomPositions[i] % height);
         board[randomPositions[i]] = individual;
     }
     for (int i = numberOfIndividuals; i < numberOfIndividuals + quantityOfFood; i++) {
         Cell *food = new Food(randomPositions[i] / height, randomPositions[i] % height);
         board[randomPositions[i]] = food;
     }
+
+    for (int i = 0; i < width * height; ++i) {
+        if (dynamic_cast<Individual*>(board[i]) != nullptr) {
+            ++counter;
+        }
+    }
+
+    std::cout << "Number of individuals: " << counter << "\n";
 }
 
 Game::~Game() {
@@ -116,7 +192,27 @@ void Game::updateDisplayMatrix(int i, sf::Color color) {
 }
 
 void Game::updateDisplayMatrix(int i) {
-    updateDisplayMatrix(i, board[i]->getColor());
+    if (board[i] == nullptr) {
+        updateDisplayMatrix(i, sf::Color::Black);
+    } else {
+        updateDisplayMatrix(i, board[i]->getColor());
+    }
+}
+
+int Game::findFreeSpot(Individual *individual, int radius) {
+    int position = individual->getPosition();
+    int x = position / height;
+    int y = position % height;
+    // check in the circle centered at (x, y) with radius i
+    for (int j = x - radius; j <= x + radius; ++j) {
+        for (int k = y - radius; k <= y + radius; ++k) {
+            int newPos = j * height + k;
+            if (newPos >= 0 && newPos < width * height && futureBoard[newPos] == nullptr) {
+                return newPos;
+            }
+        }
+    }
+    return -1;
 }
 
 int Game::findFoodInRange(Individual *individual, int radius) {
@@ -129,11 +225,17 @@ int Game::findFoodInRange(Individual *individual, int radius) {
             int newPos = j * height + k;
             if (newPos >= 0 && newPos < width * height && board[newPos] != nullptr) {
                 auto* food = dynamic_cast<Food*>(board[newPos]);
-                if (food != nullptr) {
+                if (food != nullptr && dynamic_cast<Individual*>(futureBoard[newPos]) == nullptr) {
                     return newPos;
                 }
             }
         }
     }
     return -1;
+}
+
+void Game::showStatistics() {
+    for (auto &i : raceDict) {
+        std::cout << i.second << " " << getPercentage(fitnessCache[i.first].second, fitnessCache[i.first].first) << std::endl;
+    }
 }

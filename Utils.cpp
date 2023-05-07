@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <random>
+#include <chrono>
 #include <SFML/Graphics/Font.hpp>
 
 int promptUser(const std::string& message, int mn, int mx) {
@@ -39,4 +40,13 @@ std::vector<int> generateRandomArray(int size, int mn, int mx) {
     }
     v.resize(size);
     return v;
+}
+
+long long getCurrentTime() {
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count();
+}
+
+std::string getPercentage(int newStat, int oldStat) {
+    return "Old: " + std::to_string(oldStat) + " New: " + std::to_string(newStat) + " " + std::to_string(newStat * 100.0 / oldStat) + "%";
 }

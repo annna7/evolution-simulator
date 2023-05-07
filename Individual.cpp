@@ -6,21 +6,26 @@
 #include "Utils.h"
 #include "Game.h"
 
-Individual::Individual(int x, int y) : x(x), y(y), health(0), direction(randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS - 1)), speed(SPEED) {}
+Individual::Individual(int x, int y) : x(x), y(y), health(0), direction(randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS - 1)), speed(DEFAULT_SPEED) {}
 
 std::ostream &operator<<(std::ostream &os, const Individual &individual) {
     os << "INDIVIDUAL - x: " << individual.x << " " << "y: " << individual.y << "\n";
     return os;
 }
 
+void Individual::eat() {
+    health += 1;
+}
+
 void Individual::move() {
-    x += speed * dirX[direction];
-    y += speed * dirY[direction];
+    std::cout << "OLD: " << x << " " << y << '\n';
+    x += getSpeed() * dirX[direction];
+    y += getSpeed() * dirY[direction];
     if (randomIntegerFromInterval(0, RESET_DIRECTION_SEED) == 0) {
         direction = randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS - 1);
     }
 
-    const int OFFSET = 10;
+    const int OFFSET = 50;
     if (x < 0) {
         x = OFFSET;
     } else if (x > MAX_X) {
@@ -32,6 +37,8 @@ void Individual::move() {
     } else if (y > MAX_Y) {
         y = MAX_Y - OFFSET;
     }
+
+    std::cout << "NEW: " << x << " " << y << '\n';
 }
 
 
@@ -59,21 +66,33 @@ Individual::~Individual() {
 
 const sf::Shape *Individual::getShape() {
     auto *shape = new sf::RectangleShape(sf::Vector2f((float)CELL_SIZE, (float)CELL_SIZE));
-    shape->setFillColor(sf::Color::Red);
+    shape->setFillColor(getColor());
     shape->setPosition((float)x, (float)y);
     return shape;
 }
 
-sf::Color Individual::getColor() {
-    return sf::Color::Red;
-}
 
 int Individual::getPosition() const {
     return y * MAX_Y + x;
 }
 
-void Individual::eat() {
-    health++;
+int Individual::getVision() const {
+    return Individual::DEFAULT_VISION;
 }
 
+int Individual::getHunger() const {
+    return Individual::DEFAULT_HUNGER;
+}
 
+int Individual::getSpeed() const {
+    return Individual::DEFAULT_SPEED;
+}
+
+bool Individual::checkIfAlive() const {
+    return health >= getHunger();
+}
+
+void Individual::setCoords(int x, int y) {
+    this->x = x;
+    this->y = y;
+}
