@@ -4,7 +4,6 @@
 
 #include "Individual.h"
 #include "Utils.h"
-#include "Game.h"
 
 Individual::Individual(int x, int y) : x(x), y(y), health(0), direction(randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS - 1)), speed(DEFAULT_SPEED) {}
 
@@ -62,14 +61,6 @@ Individual::~Individual() {
     std::cout << "Individual destructor called\n";
 }
 
-const sf::Shape *Individual::getShape() {
-    auto *shape = new sf::RectangleShape(sf::Vector2f((float)CELL_SIZE, (float)CELL_SIZE));
-    shape->setFillColor(getColor());
-    shape->setPosition((float)x, (float)y);
-    return shape;
-}
-
-
 int Individual::getPosition() const {
     return y * MAX_Y + x;
 }
@@ -90,7 +81,7 @@ bool Individual::checkIfAlive() const {
     return health >= getHunger();
 }
 
-void Individual::setCoords(int x, int y) {
-    this->x = x;
-    this->y = y;
+void Individual::setCoords(int xx, int yy) {
+    x = xx;
+    y = yy;
 }

@@ -72,7 +72,7 @@ void Game::endEpoch() {
 
 void Game::menuDisplay() {
     sf::Text message = sf::Text("Epoch: " + std::to_string(epochCounter) + " has ended! Press SPACE to spawn an evolved generation!", font);
-    message.setPosition(20, height * Cell::CELL_SIZE);
+    message.setPosition(20, (float) height * Cell::CELL_SIZE);
     message.setCharacterSize(15);
     window.draw(message);
 }
@@ -202,7 +202,7 @@ void Game::initializeDisplay() {
     displayMatrix.resize(width * height * Cell::CELL_SIZE * Cell::CELL_SIZE);
     for (int i = 0; i < height * Cell::CELL_SIZE; ++i) {
         for (int j = 0; j < width * Cell::CELL_SIZE; ++j) {
-            displayMatrix[i * width * Cell::CELL_SIZE + j] = sf::Vertex(sf::Vector2f(j, i), sf::Color::Black);
+            displayMatrix[i * width * Cell::CELL_SIZE + j] = sf::Vertex(sf::Vector2f((float)j, (float)i), sf::Color::Black);
         }
     }
 }
@@ -213,7 +213,7 @@ void Game::updateDisplayMatrix(int i, sf::Color color) {
     for (int j = 0; j < Cell::CELL_SIZE; ++j) {
         for (int k = 0; k < Cell::CELL_SIZE; ++k) {
             displayMatrix[(x * Cell::CELL_SIZE + j) * width * Cell::CELL_SIZE + y * Cell::CELL_SIZE + k] =
-                    sf::Vertex(sf::Vector2f(y * Cell::CELL_SIZE + k, x * Cell::CELL_SIZE + j), color);
+                    sf::Vertex(sf::Vector2f((float)(y * Cell::CELL_SIZE + k), (float)(x * Cell::CELL_SIZE + j)), color);
         }
     }
 }
@@ -276,7 +276,7 @@ void Game::showStatistics() {
     text.setFont(font);
     text.setCharacterSize(12);
     text.setFillColor(sf::Color::White);
-    text.setPosition(20, height * Cell::CELL_SIZE + 20);
+    text.setPosition(20, (float)height * Cell::CELL_SIZE + 20);
     std::string output;
     for (auto &i : raceDict) {
         // append to text

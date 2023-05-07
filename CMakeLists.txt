@@ -128,7 +128,7 @@ set_custom_stdlib_and_sanitizers(sfml-graphics false)
 ###############################################################################
 
 # NOTE: update executable name in .github/workflows/cmake.yml:25 when changing name here
-add_executable(${PROJECT_NAME} main.cpp Game.cpp Utils.cpp Individual.cpp Individual.h Food.cpp Food.h Cell.cpp Cell.h RedBull.h Clairvoyant.h RedBull.cpp Keystone.h)
+add_executable(${PROJECT_NAME} main.cpp Game.cpp Utils.cpp Individual.cpp Individual.h Food.cpp Food.h Cell.h RedBull.h Clairvoyant.h Keystone.h)
 
 ### INCLUDE SFML LIBRARY ###
 #find_package(SFML 2.5 COMPONENTS graphics audio REQUIRED)

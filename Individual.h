@@ -13,7 +13,6 @@ public:
     ~Individual() override;
     friend std::ostream &operator<<(std::ostream &os, const Individual &individual);
     bool operator==(const Individual &rhs) const;
-    const sf::Shape *getShape() override;
     [[nodiscard]] virtual int getSpeed() const;
     [[nodiscard]] virtual int getHunger() const;
     [[nodiscard]] virtual int getVision() const;

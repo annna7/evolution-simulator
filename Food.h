@@ -10,9 +10,8 @@ public:
     Food();
     Food(const Food &other);
     Food& operator=(const Food &other);
-    ~Food();
+    ~Food() override;
     friend std::ostream &operator<<(std::ostream &os, const Food &food);
-    const sf::Shape *getShape() override;
     sf::Color getColor() override;
 
 private:
