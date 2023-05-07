@@ -16,3 +16,5 @@ long long getCurrentTime();
 std::string getPercentage(int newStat, int oldStat);
 
 const static int RED_BULL = 1;
+const static int KEY_STONE = 2;
+const static int CLAIRVOYANT = 3;

@@ -28,5 +28,5 @@ const sf::Shape *Food::getShape() {
 }
 
 sf::Color Food::getColor() {
-    return sf::Color::Green;
+    return {0, 100, 0};
 }

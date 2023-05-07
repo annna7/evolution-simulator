@@ -18,7 +18,6 @@ void Individual::eat() {
 }
 
 void Individual::move() {
-    std::cout << "OLD: " << x << " " << y << '\n';
     x += getSpeed() * dirX[direction];
     y += getSpeed() * dirY[direction];
     if (randomIntegerFromInterval(0, RESET_DIRECTION_SEED) == 0) {
@@ -38,7 +37,6 @@ void Individual::move() {
         y = MAX_Y - OFFSET;
     }
 
-    std::cout << "NEW: " << x << " " << y << '\n';
 }
 
 

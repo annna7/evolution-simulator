@@ -4,10 +4,14 @@
 #include "Individual.h"
 #include "Cell.h"
 #include "RedBull.h"
+#include "Keystone.h"
+#include "Clairvoyant.h"
 #include <SFML/Graphics.hpp>
 
 const std::unordered_map<int, std::string> Game::raceDict = {
-        {RED_BULL, "Redbull"}
+        {RED_BULL, "RedBull"},
+        {KEY_STONE, "Keystone"},
+        {CLAIRVOYANT, "Clairvoyant"}
 };
 
 Game &Game::getInstance() {
@@ -89,7 +93,6 @@ void Game::display() {
         if (board[i] != nullptr) {
             updateDisplayMatrix(i);
             auto* individual = dynamic_cast<Individual*>(board[i]);
-            // daca inainte pe tabla era un individ
             if (individual != nullptr) {
                 int coords = findFoodInRange(individual, individual->getVision());
                 if (coords != -1 && dynamic_cast<Individual*>(futureBoard[coords]) == nullptr) {
@@ -142,9 +145,8 @@ Game::Game() : width(MAX_X),
 
 void Game::generateCreatures() {
     auto randomPositions = generateRandomArray(numberOfIndividuals + quantityOfFood, 0, width * height);
-    int counter = 0;
     for (int i = 0; i < numberOfIndividuals; i++) {
-        Cell *individual = new RedBull(randomPositions[i] / height, randomPositions[i] % height);
+        Cell *individual = new Clairvoyant(randomPositions[i] / height, randomPositions[i] % height);
         board[randomPositions[i]] = individual;
     }
     for (int i = numberOfIndividuals; i < numberOfIndividuals + quantityOfFood; i++) {
@@ -152,16 +154,12 @@ void Game::generateCreatures() {
         board[randomPositions[i]] = food;
     }
 
-    for (int i = 0; i < width * height; ++i) {
-        if (dynamic_cast<Individual*>(board[i]) != nullptr) {
-            ++counter;
-        }
-    }
-
-    std::cout << "Number of individuals: " << counter << "\n";
 }
 
 Game::~Game() {
+    for (auto &cell : board) {
+        delete cell;
+    }
     std::cout << "Destructor called\n";
 }
 
@@ -236,6 +234,6 @@ int Game::findFoodInRange(Individual *individual, int radius) {
 
 void Game::showStatistics() {
     for (auto &i : raceDict) {
-        std::cout << i.second << " " << getPercentage(fitnessCache[i.first].second, fitnessCache[i.first].first) << std::endl;
+        std::cout << i.second << " - " << getPercentage(fitnessCache[i.first].second, fitnessCache[i.first].first) << std::endl;
     }
 }

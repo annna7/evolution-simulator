@@ -48,5 +48,9 @@ long long getCurrentTime() {
 }
 
 std::string getPercentage(int newStat, int oldStat) {
-    return "Old: " + std::to_string(oldStat) + " New: " + std::to_string(newStat) + " " + std::to_string(newStat * 100.0 / oldStat) + "%";
+    if (oldStat == 0) {
+        return "N/A";
+    } else {
+        return std::to_string((newStat * 100) / oldStat) + "% survived.";
+    }
 }

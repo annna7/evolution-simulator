@@ -45,7 +45,7 @@ private:
 
     bool isPaused = false;
     int epochCounter = 0;
-    static const int EPOCH_DURATION = 5000;
+    static const int EPOCH_DURATION = 3000;
     static const int BOTTOM_BAR_HEIGHT = 50;
     void endEpoch();
 

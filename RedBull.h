@@ -10,11 +10,10 @@
 class RedBull : public Individual {
 public:
     RedBull(int x, int y) : Individual(x, y) {}
-    [[nodiscard]] int getSpeed() const override  { return 1; }
-    [[nodiscard]] int getHunger() const override { return 3; }
+    [[nodiscard]] int getSpeed() const override  { return 3; }
+    [[nodiscard]] int getHunger() const override { return 2; }
     [[nodiscard]] sf::Color getColor() override { return sf::Color::Red; }
     [[nodiscard]] int getType() const override { return RED_BULL; }
-    static const int counter = 0;
 };
 
 
