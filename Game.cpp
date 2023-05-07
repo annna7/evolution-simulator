@@ -129,7 +129,9 @@ void Game::display() {
 
 Game::Game() : width(MAX_X),
                height(MAX_Y),
-               numberOfIndividuals(promptUser("Specify the desired number of individuals", 10, 1000)),
+               keystoneNumber(promptUser("Specify the desired number of Keystone's (no special abilities, but can sustain on a small quantity of food):", 0, 600)),
+               clairvoyantNumber(promptUser("Specify the desired number of Clairvoyant's (can spot food from afar):", 0, 600)),
+               redBullNumber(promptUser("Specify the desired number of RedBull's (fast on their feet, but high hunger):", 0, 600)),
                quantityOfFood(promptUser("Specify the desired quantity of food", 0,1500)) {
     window.create(sf::VideoMode(width * Cell::CELL_SIZE, height * Cell::CELL_SIZE + BOTTOM_BAR_HEIGHT), "Game of Life");
     initializeFont(font);
@@ -144,12 +146,21 @@ Game::Game() : width(MAX_X),
 }
 
 void Game::generateCreatures() {
-    auto randomPositions = generateRandomArray(numberOfIndividuals + quantityOfFood, 0, width * height);
-    for (int i = 0; i < numberOfIndividuals; i++) {
+    int totalIndividuals = keystoneNumber + clairvoyantNumber + redBullNumber;
+    auto randomPositions = generateRandomArray(totalIndividuals + quantityOfFood, 0, width * height);
+    for (int i = 0; i < keystoneNumber; i++) {
+        std::shared_ptr<Cell> individual = std::make_shared<Keystone>(randomPositions[i] / height, randomPositions[i] % height);
+        board[randomPositions[i]] = individual;
+    }
+    for (int i = keystoneNumber; i < keystoneNumber + clairvoyantNumber; i++) {
+        std::shared_ptr<Cell> individual = std::make_shared<Clairvoyant>(randomPositions[i] / height, randomPositions[i] % height);
+        board[randomPositions[i]] = individual;
+    }
+    for (int i = keystoneNumber + clairvoyantNumber; i < totalIndividuals; i++) {
         std::shared_ptr<Cell> individual = std::make_shared<RedBull>(randomPositions[i] / height, randomPositions[i] % height);
         board[randomPositions[i]] = individual;
     }
-    for (int i = numberOfIndividuals; i < numberOfIndividuals + quantityOfFood; i++) {
+    for (int i = totalIndividuals; i < totalIndividuals + quantityOfFood; i++) {
         std::shared_ptr<Food> food = std::make_shared<Food>(randomPositions[i] / height, randomPositions[i] % height);
         board[randomPositions[i]] = food;
     }
@@ -160,8 +171,8 @@ Game::~Game() {
 }
 
 std::ostream &operator<<(std::ostream &os, const Game &game) {
-    os << " width: " << game.width << " height: " << game.height << " numberOfIndividuals: "
-       << game.numberOfIndividuals << " quantityOfFood: " << game.quantityOfFood;
+    os << " width: " << game.width << " height: " << game.height << " numberOfIndividuals: " << game.keystoneNumber + game.clairvoyantNumber + game.redBullNumber
+       << " numberOfFood: " << game.quantityOfFood;
     return os;
 }
 

@@ -30,7 +30,7 @@ private:
 
     int width;
     int height;
-    int numberOfIndividuals;
+    int keystoneNumber, clairvoyantNumber, redBullNumber;
     int quantityOfFood;
 
     sf::Font font;
