@@ -1,5 +1,6 @@
-# OOP Template
+# Evolution Simulator
 
+As each epoch ends, observe the evolution of a wide variety of species as they struggle to live and consume as much food as they can.
 ### Tema 0
 
 - [ ] Nume proiect (poate fi schimbat ulterior)

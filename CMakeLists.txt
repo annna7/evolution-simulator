@@ -127,24 +127,31 @@ set_custom_stdlib_and_sanitizers(sfml-graphics false)
 
 ###############################################################################
 
+#include font
+# Add font file
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets
+        DESTINATION bin
+        FILES_MATCHING
+        PATTERN "*.ttf")
+
+
+#add_custom_command(
+#        OUTPUT "${CMAKE_BINARY_DIR}/assets/RobotoMono-Regular.ttf"
+#        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/assets/RobotoMono-Regular.ttf" "${CMAKE_BINARY_DIR}/assets/RobotoMono-Regular.ttf"
+#        DEPENDS "${CMAKE_SOURCE_DIR}/assets/RobotoMono-Regular.ttf"
+#)
+#add_custom_target(FontCopy ALL DEPENDS "${CMAKE_BINARY_DIR}/assets/RobotoMono-Regular.ttf")
+#add_dependencies(${PROJECT_NAME} FontCopy)
+#target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR})
+
 # NOTE: update executable name in .github/workflows/cmake.yml:25 when changing name here
-add_executable(${PROJECT_NAME} main.cpp Game.cpp Utils.cpp Individual.cpp Individual.h Food.cpp Food.h Cell.h RedBull.h Clairvoyant.h Keystone.h)
+add_executable(${PROJECT_NAME} main.cpp Game.cpp Utils.cpp Individual.cpp Individual.h Food.cpp Food.h Cell.h RedBull.h Clairvoyant.h Keystone.h ${CMAKE_SOURCE_DIR}/assets/RobotoMono-Regular.ttf)
 
 ### INCLUDE SFML LIBRARY ###
 #find_package(SFML 2.5 COMPONENTS graphics audio REQUIRED)
 #target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-audio)
 ###############################################################################
-
-#include font
-# Add font file
-add_custom_command(
-        OUTPUT "${CMAKE_BINARY_DIR}/assets/RobotoMono-Regular.ttf"
-        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/assets/RobotoMono-Regular.ttf" "${CMAKE_BINARY_DIR}/assets/RobotoMono-Regular.ttf"
-        DEPENDS "${CMAKE_SOURCE_DIR}/assets/RobotoMono-Regular.ttf"
-)
-add_custom_target(FontCopy ALL DEPENDS "${CMAKE_BINARY_DIR}/assets/RobotoMono-Regular.ttf")
-add_dependencies(${PROJECT_NAME} FontCopy)
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR})
 
 # target definitions
 
