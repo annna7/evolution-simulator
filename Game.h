@@ -30,13 +30,12 @@ private:
 
     int width;
     int height;
-    int keystoneNumber, clairvoyantNumber, redBullNumber;
+    int keystoneNumber, clairvoyantNumber, redBullNumber, ascendantNumber;
     int quantityOfFood;
 
     sf::Clock clock;
     sf::Font font;
     sf::RenderWindow window;
-
     Game();
     void generateCells();
     void display();
@@ -54,10 +53,8 @@ private:
     void showStatistics();
     int findFreeSpot(const std::shared_ptr<Individual>&, int radius);
     int findFoodInRange(const std::shared_ptr<Individual>&, int radius);
-
     std::unordered_map<int, int> computeNewGeneration();
     void resetGeneration(std::unordered_map<int, int> generation);
     void resetBoard();
-
     int getTotalSurvivalRate();
 };

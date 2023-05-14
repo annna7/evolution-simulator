@@ -6,12 +6,14 @@
 #include "RedBull.h"
 #include "Keystone.h"
 #include "Clairvoyant.h"
+#include "Ascendant.h"
 #include <SFML/Graphics.hpp>
 
 const std::unordered_map<int, std::string> Game::raceDict = {
         {RED_BULL, "RedBull"},
         {KEY_STONE, "Keystone"},
-        {CLAIRVOYANT, "Clairvoyant"}
+        {CLAIRVOYANT, "Clairvoyant"},
+        {ASCENDANT, "Ascendant"}
 };
 
 Game &Game::getInstance() {
@@ -30,9 +32,14 @@ std::unordered_map<int, int> Game::computeNewGeneration() {
         totalSurvivors += it.second.second;
         totalIndividuals += it.second.first;
     }
-    for (auto &it : fitnessMap) {
-        newGeneration[it.first] = it.second.first == 0 ? 0 : (int) ((1.0 * it.second.second / it.second.first) * it.second.first * totalIndividuals) / totalSurvivors;
+    try {
+        for (auto &it : fitnessMap) {
+            newGeneration[it.first] = it.second.first == 0 ? 0 : (int) ((1.0 * it.second.second / it.second.first) * it.second.first * totalIndividuals) / totalSurvivors;
+        }
+    } catch (std::exception &e) {
+        std::cout << e.what() << "\n";
     }
+
     return newGeneration;
 }
 
@@ -103,7 +110,6 @@ void Game::run() {
     }
 }
 
-
 void Game::display() {
     window.clear();
     displayMatrix.clear();
@@ -154,8 +160,10 @@ Game::Game() : width(MAX_X),
                keystoneNumber(promptUser("[YELLOW] Specify the desired number of Keystone's (no special abilities, but can sustain on a small quantity of food):", 0, 600)),
                clairvoyantNumber(promptUser("[BLUE] Specify the desired number of Clairvoyant's (can spot food from afar):", 0, 600)),
                redBullNumber(promptUser("[RED] Specify the desired number of RedBull's (fast on their feet, but high hunger):", 0, 600)),
+               ascendantNumber(promptUser("[PINK] Specify the desired number of Ascendant's (become overpowered once they eat the first time):", 0, 600)),
                quantityOfFood(promptUser("[DARK GREEN] Specify the desired quantity of food", 0,1500)) {
     window.create(sf::VideoMode(width * Cell::CELL_SIZE, height * Cell::CELL_SIZE + BOTTOM_BAR_HEIGHT), "Game of Life");
+    std::cout << "Each individual will be equipped with a randomly selected fighting strategy (defensive, offensive, lover).\n";
     initializeFont(font);
     epochCounter = 0;
     resetBoard();
@@ -168,7 +176,7 @@ void Game::generateCells() {
     futureBoard.clear();
     board.resize(width * height);
     futureBoard.resize(width * height);
-    int totalIndividuals = keystoneNumber + clairvoyantNumber + redBullNumber;
+    int totalIndividuals = keystoneNumber + clairvoyantNumber + redBullNumber + ascendantNumber;
     auto randomPositions = generateRandomArray(totalIndividuals + quantityOfFood, 0, width * height);
     for (int i = 0; i < keystoneNumber; i++) {
         std::shared_ptr<Cell> individual = std::make_shared<Keystone>(randomPositions[i] / height, randomPositions[i] % height);
@@ -178,8 +186,12 @@ void Game::generateCells() {
         std::shared_ptr<Cell> individual = std::make_shared<Clairvoyant>(randomPositions[i] / height, randomPositions[i] % height);
         board[randomPositions[i]] = individual;
     }
-    for (int i = keystoneNumber + clairvoyantNumber; i < totalIndividuals; i++) {
+    for (int i = keystoneNumber + clairvoyantNumber; i < keystoneNumber + clairvoyantNumber + redBullNumber; i++) {
         std::shared_ptr<Cell> individual = std::make_shared<RedBull>(randomPositions[i] / height, randomPositions[i] % height);
+        board[randomPositions[i]] = individual;
+    }
+    for (int i = keystoneNumber + clairvoyantNumber + redBullNumber; i < totalIndividuals; i++) {
+        std::shared_ptr<Cell> individual = std::make_shared<Ascendant>(randomPositions[i] / height, randomPositions[i] % height);
         board[randomPositions[i]] = individual;
     }
     for (int i = totalIndividuals; i < totalIndividuals + quantityOfFood; i++) {
@@ -292,6 +304,7 @@ void Game::resetGeneration(std::unordered_map<int, int> generation) {
     keystoneNumber = generation[KEY_STONE];
     clairvoyantNumber = generation[CLAIRVOYANT];
     redBullNumber = generation[RED_BULL];
+    ascendantNumber = generation[ASCENDANT];
     resetBoard();
 }
 
