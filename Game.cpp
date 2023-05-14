@@ -5,6 +5,7 @@
 #include "Cell.h"
 #include "RedBull.h"
 #include "Keystone.h"
+#include "CellFactory.h"
 #include "Clairvoyant.h"
 #include "Ascendant.h"
 #include <SFML/Graphics.hpp>
@@ -13,7 +14,8 @@ const std::unordered_map<int, std::string> Game::raceDict = {
         {RED_BULL, "RedBull"},
         {KEY_STONE, "Keystone"},
         {CLAIRVOYANT, "Clairvoyant"},
-        {ASCENDANT, "Ascendant"}
+        {ASCENDANT, "Ascendant"},
+        {SUITOR, "Suitor"}
 };
 
 Game &Game::getInstance() {
@@ -133,6 +135,7 @@ void Game::display() {
                     if (futureBoard[newPosition] == nullptr) {
                         futureBoard[newPosition] = individual;
                     } else if (dynamic_pointer_cast<Individual>(futureBoard[newPosition])){
+                        // IMPLEMENT SUITOR HERE
                         int freePosition = findFreeSpot(individual, 5);
                         if (freePosition != -1) {
                             futureBoard[freePosition] = individual;
@@ -161,9 +164,9 @@ Game::Game() : width(MAX_X),
                clairvoyantNumber(promptUser("[BLUE] Specify the desired number of Clairvoyant's (can spot food from afar):", 0, 600)),
                redBullNumber(promptUser("[RED] Specify the desired number of RedBull's (fast on their feet, but high hunger):", 0, 600)),
                ascendantNumber(promptUser("[PINK] Specify the desired number of Ascendant's (become overpowered once they eat the first time):", 0, 600)),
+               suitorNumber(promptUser("[GREEN] Specify the desired number of Suitor's (each Suitor wants to mate with a specific breed of individuals described above.):", 0, 600)),
                quantityOfFood(promptUser("[DARK GREEN] Specify the desired quantity of food", 0,2000)) {
     window.create(sf::VideoMode(width * Cell::CELL_SIZE, height * Cell::CELL_SIZE + BOTTOM_BAR_HEIGHT), "Game of Life");
-    std::cout << "Each individual will be equipped with a randomly selected fighting strategy (defensive, offensive, lover).\n";
     initializeFont(font);
     epochCounter = 0;
     resetBoard();
@@ -179,24 +182,19 @@ void Game::generateCells() {
     int totalIndividuals = keystoneNumber + clairvoyantNumber + redBullNumber + ascendantNumber;
     auto randomPositions = generateRandomArray(totalIndividuals + quantityOfFood, 0, width * height);
     for (int i = 0; i < keystoneNumber; i++) {
-        std::shared_ptr<Cell> individual = std::make_shared<Keystone>(randomPositions[i] / height, randomPositions[i] % height);
-        board[randomPositions[i]] = individual;
+        board[randomPositions[i]] = CellFactory::createKeystone(randomPositions[i] / height, randomPositions[i] % height);
     }
     for (int i = keystoneNumber; i < keystoneNumber + clairvoyantNumber; i++) {
-        std::shared_ptr<Cell> individual = std::make_shared<Clairvoyant>(randomPositions[i] / height, randomPositions[i] % height);
-        board[randomPositions[i]] = individual;
+        board[randomPositions[i]] = CellFactory::createClairvoyant(randomPositions[i] / height, randomPositions[i] % height);
     }
     for (int i = keystoneNumber + clairvoyantNumber; i < keystoneNumber + clairvoyantNumber + redBullNumber; i++) {
-        std::shared_ptr<Cell> individual = std::make_shared<RedBull>(randomPositions[i] / height, randomPositions[i] % height);
-        board[randomPositions[i]] = individual;
+        board[randomPositions[i]] = CellFactory::createRedBull(randomPositions[i] / height, randomPositions[i] % height);
     }
     for (int i = keystoneNumber + clairvoyantNumber + redBullNumber; i < totalIndividuals; i++) {
-        std::shared_ptr<Cell> individual = std::make_shared<Ascendant>(randomPositions[i] / height, randomPositions[i] % height);
-        board[randomPositions[i]] = individual;
+        board[randomPositions[i]] = CellFactory::createAscendant(randomPositions[i] / height, randomPositions[i] % height);
     }
     for (int i = totalIndividuals; i < totalIndividuals + quantityOfFood; i++) {
-        std::shared_ptr<Food> food = std::make_shared<Food>(randomPositions[i] / height, randomPositions[i] % height);
-        board[randomPositions[i]] = food;
+        board[randomPositions[i]] = CellFactory::createFood(randomPositions[i] / height, randomPositions[i] % height);
     }
 }
 

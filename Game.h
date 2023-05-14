@@ -30,7 +30,7 @@ private:
 
     int width;
     int height;
-    int keystoneNumber, clairvoyantNumber, redBullNumber, ascendantNumber;
+    int keystoneNumber, clairvoyantNumber, redBullNumber, ascendantNumber, suitorNumber;
     int quantityOfFood;
 
     sf::Clock clock;
