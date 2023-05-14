@@ -19,7 +19,7 @@ public:
     [[nodiscard]] virtual int getType() const = 0;
     [[nodiscard]] int getPosition() const;
     void setCoords(int x, int y);
-    void eat();
+    virtual void eat();
     void move();
 
     [[nodiscard]] bool checkIfAlive() const;
