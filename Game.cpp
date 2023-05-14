@@ -161,7 +161,7 @@ Game::Game() : width(MAX_X),
                clairvoyantNumber(promptUser("[BLUE] Specify the desired number of Clairvoyant's (can spot food from afar):", 0, 600)),
                redBullNumber(promptUser("[RED] Specify the desired number of RedBull's (fast on their feet, but high hunger):", 0, 600)),
                ascendantNumber(promptUser("[PINK] Specify the desired number of Ascendant's (become overpowered once they eat the first time):", 0, 600)),
-               quantityOfFood(promptUser("[DARK GREEN] Specify the desired quantity of food", 0,1500)) {
+               quantityOfFood(promptUser("[DARK GREEN] Specify the desired quantity of food", 0,2000)) {
     window.create(sf::VideoMode(width * Cell::CELL_SIZE, height * Cell::CELL_SIZE + BOTTOM_BAR_HEIGHT), "Game of Life");
     std::cout << "Each individual will be equipped with a randomly selected fighting strategy (defensive, offensive, lover).\n";
     initializeFont(font);
@@ -300,7 +300,6 @@ void Game::showStatistics() {
 }
 
 void Game::resetGeneration(std::unordered_map<int, int> generation) {
-    std::cout << "Resetting generation\n" << generation[KEY_STONE] << " " << generation[CLAIRVOYANT] << " " << generation[RED_BULL] << "\n";
     keystoneNumber = generation[KEY_STONE];
     clairvoyantNumber = generation[CLAIRVOYANT];
     redBullNumber = generation[RED_BULL];
@@ -309,7 +308,6 @@ void Game::resetGeneration(std::unordered_map<int, int> generation) {
 }
 
 void Game::resetBoard() {
-    // reset generation
     fitnessMap.clear();
     generateCells();
     initializeDisplay();
