@@ -12,9 +12,11 @@ template <typename IndividualType>
 class Suitor : public Individual {
 public:
     Suitor(int x, int y) : Individual(x, y) {}
-    [[nodiscard]] int getType() const override { return SUITOR; }
-    [[nodiscard]] sf::Color getColor() override { return sf::Color::Green; }
+    [[nodiscard]] int getType() const override { return 5; }
+    [[nodiscard]] sf::Color getColor() override { return {128, 128, 128};}
+    [[nodiscard]] int getHunger() const override { return 2; }
 };
+
 
 
 #endif //OOP_SUITOR_H

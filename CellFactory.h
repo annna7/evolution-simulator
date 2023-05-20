@@ -20,9 +20,12 @@ public:
     static std::shared_ptr<RedBull> createRedBull(int x, int y);
     static std::shared_ptr<Keystone> createKeystone(int x, int y);
     static std::shared_ptr<Clairvoyant> createClairvoyant(int x, int y);
-    template <typename IndividualType>
+
+    template<typename IndividualType>
     static std::shared_ptr<Suitor<IndividualType>> createSuitor(int x, int y);
+
     static std::shared_ptr<Individual> createSuitor(int x, int y);
+
     static std::shared_ptr<Food> createFood(int x, int y);
 };
 

@@ -57,9 +57,7 @@ Individual &Individual::operator=(const Individual &other) {
     return *this;
 }
 
-Individual::~Individual() {
-    std::cout << "Individual destructor called\n";
-}
+Individual::~Individual() = default;
 
 int Individual::getPosition() const {
     return y * MAX_Y + x;

@@ -15,9 +15,7 @@ std::ostream &operator<<(std::ostream &os, const Food &food) {
     return os;
 }
 
-Food::~Food() {
-    std::cout << "Food destructor called\n";
-}
+Food::~Food() = default;
 
 sf::Color Food::getColor() {
     return {0, 100, 0};

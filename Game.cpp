@@ -3,11 +3,7 @@
 #include "Food.h"
 #include "Individual.h"
 #include "Cell.h"
-#include "RedBull.h"
-#include "Keystone.h"
 #include "CellFactory.h"
-#include "Clairvoyant.h"
-#include "Ascendant.h"
 #include <SFML/Graphics.hpp>
 
 const std::unordered_map<int, std::string> Game::raceDict = {
@@ -17,6 +13,33 @@ const std::unordered_map<int, std::string> Game::raceDict = {
         {ASCENDANT, "Ascendant"},
         {SUITOR, "Suitor"}
 };
+
+template<typename K>
+void Game::produceOffspring(int pos) {
+    auto freeSpot = findFreeSpot(pos, 10);
+    if (freeSpot == -1) {
+        return;
+    }
+    auto offspring = CellFactory::createSuitor(freeSpot / width, freeSpot % width);
+    offspring->eat();
+    offspring->eat();
+    offspring->eat();
+    futureBoard[freeSpot] = offspring;
+}
+
+template<typename K>
+void Game::mate(std::shared_ptr<K> indiv, std::shared_ptr<Suitor<K>> suitor) {
+    if (indiv == nullptr || suitor == nullptr) {
+        return;
+    }
+
+    for (int i = 0; i < 3; ++i) {
+        produceOffspring<K>(indiv->getPosition());
+    }
+
+    std::cout << "Mating!" << std::endl;
+}
+
 
 Game &Game::getInstance() {
     static Game instance;
@@ -54,7 +77,8 @@ void Game::computeFitness() {
             if (individualCell != nullptr) {
                 fitnessMap[individualCell->getType()].first += 1;
                 if (!individualCell->checkIfAlive()) {
-                    board[individualCell->getPosition()] = nullptr;
+                    if (individualCell->getPosition() >= 0 && individualCell->getPosition() < width * height)
+                        board[individualCell->getPosition()] = nullptr;
                 } else {
                     fitnessMap[individualCell->getType()].second += 1;
                 }
@@ -134,9 +158,15 @@ void Game::display() {
                     }
                     if (futureBoard[newPosition] == nullptr) {
                         futureBoard[newPosition] = individual;
-                    } else if (dynamic_pointer_cast<Individual>(futureBoard[newPosition])){
-                        // IMPLEMENT SUITOR HERE
-                        int freePosition = findFreeSpot(individual, 5);
+                    } else if (auto individualFound = dynamic_pointer_cast<Individual>(futureBoard[newPosition])){
+                        // check whether one of them is a suitor
+                        if (checkSuitor<Clairvoyant>(individual, dynamic_pointer_cast<Clairvoyant>(individualFound))
+                                || checkSuitor<RedBull>(individual, dynamic_pointer_cast<RedBull>(individualFound))
+                                        || checkSuitor<Keystone>(individual, dynamic_pointer_cast<Keystone>(individualFound))
+                                                || checkSuitor<Ascendant>(individual, dynamic_pointer_cast<Ascendant>(individualFound))) {
+                            std::cout << "Mating has occurred!" << std::endl;
+                        }
+                        int freePosition = findFreeSpot(individual->getPosition(), 5);
                         if (freePosition != -1) {
                             futureBoard[freePosition] = individual;
                         }
@@ -164,7 +194,7 @@ Game::Game() : width(MAX_X),
                clairvoyantNumber(promptUser("[BLUE] Specify the desired number of Clairvoyant's (can spot food from afar):", 0, 600)),
                redBullNumber(promptUser("[RED] Specify the desired number of RedBull's (fast on their feet, but high hunger):", 0, 600)),
                ascendantNumber(promptUser("[PINK] Specify the desired number of Ascendant's (become overpowered once they eat the first time):", 0, 600)),
-               suitorNumber(promptUser("[GREEN] Specify the desired number of Suitor's (each Suitor wants to mate with a specific breed of individuals described above.):", 0, 600)),
+               suitorNumber(promptUser("[GRAY] Specify the desired number of Suitor's (each Suitor wants to mate with a specific breed of individuals described above (which will get picked randomly).):", 0, 600)),
                quantityOfFood(promptUser("[DARK GREEN] Specify the desired quantity of food", 0,2000)) {
     window.create(sf::VideoMode(width * Cell::CELL_SIZE, height * Cell::CELL_SIZE + BOTTOM_BAR_HEIGHT), "Game of Life");
     initializeFont(font);
@@ -179,21 +209,29 @@ void Game::generateCells() {
     futureBoard.clear();
     board.resize(width * height);
     futureBoard.resize(width * height);
-    int totalIndividuals = keystoneNumber + clairvoyantNumber + redBullNumber + ascendantNumber;
-    auto randomPositions = generateRandomArray(totalIndividuals + quantityOfFood, 0, width * height);
-    for (int i = 0; i < keystoneNumber; i++) {
+    int lowerBound = 0;
+    auto randomPositions = generateRandomArray(keystoneNumber + clairvoyantNumber + ascendantNumber + redBullNumber + suitorNumber + quantityOfFood, 0, width * height);
+    for (int i = lowerBound; i < lowerBound + keystoneNumber; i++) {
         board[randomPositions[i]] = CellFactory::createKeystone(randomPositions[i] / height, randomPositions[i] % height);
     }
-    for (int i = keystoneNumber; i < keystoneNumber + clairvoyantNumber; i++) {
+    lowerBound += keystoneNumber;
+    for (int i = lowerBound; i < lowerBound + clairvoyantNumber; i++) {
         board[randomPositions[i]] = CellFactory::createClairvoyant(randomPositions[i] / height, randomPositions[i] % height);
     }
-    for (int i = keystoneNumber + clairvoyantNumber; i < keystoneNumber + clairvoyantNumber + redBullNumber; i++) {
+    lowerBound += clairvoyantNumber;
+    for (int i = lowerBound; i < lowerBound + redBullNumber; i++) {
         board[randomPositions[i]] = CellFactory::createRedBull(randomPositions[i] / height, randomPositions[i] % height);
     }
-    for (int i = keystoneNumber + clairvoyantNumber + redBullNumber; i < totalIndividuals; i++) {
+    lowerBound += redBullNumber;
+    for (int i = lowerBound; i < lowerBound + ascendantNumber; i++) {
         board[randomPositions[i]] = CellFactory::createAscendant(randomPositions[i] / height, randomPositions[i] % height);
     }
-    for (int i = totalIndividuals; i < totalIndividuals + quantityOfFood; i++) {
+    lowerBound += ascendantNumber;
+    for (int i = lowerBound; i < lowerBound + suitorNumber; i++) {
+        board[randomPositions[i]] = CellFactory::createSuitor(randomPositions[i] / height, randomPositions[i] % height);
+    }
+    lowerBound += suitorNumber;
+    for (int i = lowerBound; i < lowerBound + quantityOfFood; i++) {
         board[randomPositions[i]] = CellFactory::createFood(randomPositions[i] / height, randomPositions[i] % height);
     }
 }
@@ -236,10 +274,9 @@ void Game::updateDisplayMatrix(int i) {
     }
 }
 
-int Game::findFreeSpot(const std::shared_ptr<Individual>& individual, int radius) {
-    int position = individual->getPosition();
-    int x = position / height;
-    int y = position % height;
+int Game::findFreeSpot(int pos, int radius) {
+    int x = pos / height;
+    int y = pos % height;
     // check in the circle centered at (x, y) with radius i
     for (int j = x - radius; j <= x + radius; ++j) {
         for (int k = y - radius; k <= y + radius; ++k) {
@@ -251,6 +288,7 @@ int Game::findFreeSpot(const std::shared_ptr<Individual>& individual, int radius
     }
     return -1;
 }
+
 
 int Game::findFoodInRange(const std::shared_ptr<Individual>& individual, int radius) {
     int position = individual->getPosition();
@@ -302,6 +340,7 @@ void Game::resetGeneration(std::unordered_map<int, int> generation) {
     clairvoyantNumber = generation[CLAIRVOYANT];
     redBullNumber = generation[RED_BULL];
     ascendantNumber = generation[ASCENDANT];
+    suitorNumber = generation[SUITOR];
     resetBoard();
 }
 
@@ -310,3 +349,29 @@ void Game::resetBoard() {
     generateCells();
     initializeDisplay();
 }
+
+//template <typename T>
+//std::shared_ptr<Suitor<T>> Game::checkSuitor(std::shared_ptr<Individual> a, std::shared_ptr<Individual> b) {
+//    if (dynamic_cast<Suitor<T>*>(a.get()) && dynamic_cast<T*>(b.get())) {
+//        return dynamic_pointer_cast<Suitor<Keystone>>(a);
+//    } else if (dynamic_cast<Suitor<Clairvoyant>*>(a.get()) && dynamic_cast<Clairvoyant*>(b.get())) {
+//        return dynamic_pointer_cast<Suitor<Clairvoyant>>(a);
+//    } else if (dynamic_cast<Suitor<Ascendant>*>(a.get()) && dynamic_cast<Ascendant*>(b.get())) {
+//        return dynamic_pointer_cast<Suitor<Ascendant>>(a);
+//    } else if (dynamic_cast<Suitor<RedBull>*>(a.get()) && dynamic_cast<RedBull*>(b.get())) {
+//        return std::dynamic_pointer_cast<RedBull>(a);
+//    } else {
+//        return nullptr;
+//    }
+//}
+
+template <typename T>
+bool Game::checkSuitor(std::shared_ptr<Individual> a, std::shared_ptr<T> b) {
+
+    if (std::shared_ptr<Suitor<T>> suitor = dynamic_pointer_cast<Suitor<T>>(a)) {
+        mate<T>(b, dynamic_pointer_cast<Suitor<T>>(a));
+        return true;
+    }
+    return false;
+}
+

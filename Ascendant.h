@@ -38,6 +38,19 @@ public:
             return Individual::getSpeed();
         }
     }
+    // override copy constructor, assignment operator, swap
+    Ascendant(const Ascendant &other) : Individual(other) {
+        hasEaten = other.hasEaten;
+    }
+
+    Ascendant& operator=(const Ascendant &other) {
+        if (this != &other) {
+            Individual::operator=(other);
+            hasEaten = other.hasEaten;
+        }
+        return *this;
+    }
+
 };
 
 

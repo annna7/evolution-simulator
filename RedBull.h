@@ -1,7 +1,3 @@
-//
-// Created by anna on 5/6/23.
-//
-
 #ifndef OOP_REDBULL_H
 #define OOP_REDBULL_H
 

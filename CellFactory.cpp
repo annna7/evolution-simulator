@@ -2,8 +2,15 @@
 // Created by anna on 5/14/23.
 //
 
-#include "CellFactory.h"
 #include "Utils.h"
+#include "Individual.h"
+#include "Ascendant.h"
+#include "Suitor.h"
+#include "RedBull.h"
+#include "Keystone.h"
+#include "Clairvoyant.h"
+#include "CellFactory.h"
+
 
 std::shared_ptr<Ascendant> CellFactory::createAscendant(int x, int y) {
     return std::make_shared<Ascendant>(x, y);
@@ -27,7 +34,7 @@ std::shared_ptr<Food> CellFactory::createFood(int x, int y) {
 
 template<typename IndividualType>
 std::shared_ptr<Suitor<IndividualType>> CellFactory::createSuitor(int x, int y) {
-    return std::shared_ptr<Suitor<IndividualType>>();
+    return std::shared_ptr<Suitor<IndividualType>>(x, y);
 }
 
 std::shared_ptr<Individual> CellFactory::createSuitor(int x, int y) {
@@ -44,3 +51,8 @@ std::shared_ptr<Individual> CellFactory::createSuitor(int x, int y) {
             return nullptr;
     }
 }
+
+template<> std::shared_ptr<Suitor<Ascendant>> CellFactory::createSuitor<Ascendant>(int x, int y);
+template<> std::shared_ptr<Suitor<RedBull>> CellFactory::createSuitor<RedBull>(int x, int y);
+template<> std::shared_ptr<Suitor<Keystone>> CellFactory::createSuitor<Keystone>(int x, int y);
+template<> std::shared_ptr<Suitor<Clairvoyant>> CellFactory::createSuitor<Clairvoyant>(int x, int y);
