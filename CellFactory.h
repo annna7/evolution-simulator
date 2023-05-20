@@ -29,5 +29,10 @@ public:
     static std::shared_ptr<Food> createFood(int x, int y);
 };
 
+template <typename IndividualType>
+std::shared_ptr<Suitor<IndividualType>> CellFactory::createSuitor(int x, int y) {
+    return std::make_shared<Suitor<IndividualType>>(x, y);
+}
+
 
 #endif //OOP_CELLFACTORY_H

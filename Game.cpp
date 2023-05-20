@@ -20,7 +20,7 @@ void Game::produceOffspring(int pos) {
     if (freeSpot == -1) {
         return;
     }
-    auto offspring = CellFactory::createSuitor(freeSpot / width, freeSpot % width);
+    auto offspring = CellFactory::createSuitor<K>(freeSpot / width, freeSpot % width);
     offspring->eat();
     offspring->eat();
     offspring->eat();
@@ -36,7 +36,6 @@ void Game::mate(std::shared_ptr<K> indiv, std::shared_ptr<Suitor<K>> suitor) {
     for (int i = 0; i < 3; ++i) {
         produceOffspring<K>(indiv->getPosition());
     }
-
     std::cout << "Mating!" << std::endl;
 }
 
@@ -164,7 +163,6 @@ void Game::display() {
                                 || checkSuitor<RedBull>(individual, dynamic_pointer_cast<RedBull>(individualFound))
                                         || checkSuitor<Keystone>(individual, dynamic_pointer_cast<Keystone>(individualFound))
                                                 || checkSuitor<Ascendant>(individual, dynamic_pointer_cast<Ascendant>(individualFound))) {
-                            std::cout << "Mating has occurred!" << std::endl;
                         }
                         int freePosition = findFreeSpot(individual->getPosition(), 5);
                         if (freePosition != -1) {

@@ -32,11 +32,6 @@ std::shared_ptr<Food> CellFactory::createFood(int x, int y) {
     return std::make_shared<Food>(x, y);
 }
 
-template<typename IndividualType>
-std::shared_ptr<Suitor<IndividualType>> CellFactory::createSuitor(int x, int y) {
-    return std::shared_ptr<Suitor<IndividualType>>(x, y);
-}
-
 std::shared_ptr<Individual> CellFactory::createSuitor(int x, int y) {
     switch (randomIntegerFromInterval(0, 3)) {
         case 0:
@@ -51,8 +46,3 @@ std::shared_ptr<Individual> CellFactory::createSuitor(int x, int y) {
             return nullptr;
     }
 }
-
-template<> std::shared_ptr<Suitor<Ascendant>> CellFactory::createSuitor<Ascendant>(int x, int y);
-template<> std::shared_ptr<Suitor<RedBull>> CellFactory::createSuitor<RedBull>(int x, int y);
-template<> std::shared_ptr<Suitor<Keystone>> CellFactory::createSuitor<Keystone>(int x, int y);
-template<> std::shared_ptr<Suitor<Clairvoyant>> CellFactory::createSuitor<Clairvoyant>(int x, int y);
