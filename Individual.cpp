@@ -104,3 +104,8 @@ FightingOutcome Individual::fight(const std::shared_ptr<Individual>& other) {
 Individual::Individual(int x, int y, std::shared_ptr<FightingStrategy> fightingStrategy) : Individual(x, y) {
     this->fightingStrategy = std::move(fightingStrategy);
 }
+
+sf::Color Individual::getColor() const {
+    return fightingStrategy ? colorMixer(getOwnColor(), fightingStrategy->getColor()) : getOwnColor();
+}
+

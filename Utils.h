@@ -15,3 +15,4 @@ std::vector<int> generateRandomArray(int size, int mn, int mx);
 std::string getPercentage(int newStat, int oldStat);
 void checkCoordinates(int x, int y);
 void checkCoordinates(int pos);
+sf::Color colorMixer(const sf::Color &color1, const sf::Color &color2);

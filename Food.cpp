@@ -17,6 +17,6 @@ std::ostream &operator<<(std::ostream &os, const Food &food) {
 
 Food::~Food() = default;
 
-sf::Color Food::getColor() {
+sf::Color Food::getColor() const {
     return {0, 100, 0};
 }

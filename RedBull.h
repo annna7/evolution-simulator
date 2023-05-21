@@ -6,7 +6,7 @@
 class RedBull : public Individual {
 public:
     RedBull(int x, int y);
-    [[nodiscard]] sf::Color getColor() override;
+    [[nodiscard]] sf::Color getOwnColor() const override;
     [[nodiscard]] int getHunger() const override;
     [[nodiscard]] int getSpeed() const override;
 };

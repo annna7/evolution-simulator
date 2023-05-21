@@ -5,7 +5,7 @@ Ascendant::Ascendant(int x, int y) : Individual(x, y) {
     hasEaten = false;
 }
 
-sf::Color Ascendant::getColor() {
+sf::Color Ascendant::getOwnColor() const {
     return sf::Color::Cyan;
 }
 

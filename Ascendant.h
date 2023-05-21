@@ -9,7 +9,7 @@ class Ascendant : public Individual {
 
 public:
     Ascendant(int x, int y);
-    [[nodiscard]] sf::Color getColor() override;
+    [[nodiscard]] sf::Color getOwnColor() const override;
     [[nodiscard]] int getHunger() const override;
     void eat() override;
     [[nodiscard]] int getVision() const override;

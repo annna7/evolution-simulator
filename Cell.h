@@ -8,7 +8,7 @@
 class Cell {
 public:
     const static int CELL_SIZE = 3;
-    virtual sf::Color getColor() = 0;
+    [[nodiscard]] virtual sf::Color getColor() const = 0;
     virtual ~Cell() = default;
 };
 

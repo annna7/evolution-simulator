@@ -8,7 +8,7 @@
 class Keystone : public Individual {
 public:
     Keystone(int x, int y);
-    [[nodiscard]] sf::Color getColor() override;
+    [[nodiscard]] sf::Color getOwnColor() const override;
 };
 
 

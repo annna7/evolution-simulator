@@ -2,6 +2,6 @@
 
 Keystone::Keystone(int x, int y) : Individual(x, y) {}
 
-sf::Color Keystone::getColor() {
+sf::Color Keystone::getOwnColor() const {
     return sf::Color::Yellow;
 }

@@ -9,7 +9,7 @@ public:
     Clairvoyant(int x, int y);
     [[nodiscard]] int getHunger() const override;
     [[nodiscard]] int getVision() const override;
-    [[nodiscard]] sf::Color getColor() override;
+    [[nodiscard]] sf::Color getOwnColor() const override;
 };
 
 #endif //OOP_CLAIRVOYANT_H

@@ -61,3 +61,11 @@ void checkCoordinates(int x, int y) {
 void checkCoordinates(int pos) {
     return checkCoordinates(pos / MAX_X, pos % MAX_X);
 }
+
+sf::Color colorMixer(const sf::Color& color1, const sf::Color& color2) {
+    sf::Uint8 red = (color1.r + color2.r) / 2;
+    sf::Uint8 green = (color1.g + color2.g) / 2;
+    sf::Uint8 blue = (color1.b + color2.b) / 2;
+
+    return {red, green, blue};
+}
