@@ -17,5 +17,7 @@ std::string individualTypeToString(IndividualType type) {
             return "Begin Placeholder";
         case INDIVIDUAL_TYPE_END:
             return "End Placeholder";
+        default:
+            return "Invalid Individual Type";
     }
 }
