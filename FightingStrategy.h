@@ -8,11 +8,13 @@
 #include "FightingOutcome.h"
 #include "Exceptions.h"
 #include <memory>
+#include <SFML/Graphics/Color.hpp>
 
 class FightingStrategy {
 public:
     virtual FightingOutcome fight(const std::shared_ptr<FightingStrategy> &other) = 0;
     virtual ~FightingStrategy() = default;
+    virtual sf::Color getColor() = 0;
 };
 
 

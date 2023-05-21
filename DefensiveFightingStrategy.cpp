@@ -13,3 +13,7 @@ FightingOutcome DefensiveFightingStrategy::fight(const std::shared_ptr<FightingS
         return FightingOutcome::DIE_LIVE;
     }
 }
+
+sf::Color DefensiveFightingStrategy::getColor() {
+    return sf::Color::White;
+}

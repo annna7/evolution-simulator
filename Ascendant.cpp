@@ -6,7 +6,7 @@ Ascendant::Ascendant(int x, int y) : Individual(x, y) {
 }
 
 sf::Color Ascendant::getColor() {
-    return sf::Color::Magenta;
+    return sf::Color::Cyan;
 }
 
 int Ascendant::getHunger() const {

@@ -216,8 +216,8 @@ Game::Game() : width(MAX_X),
     currentGeneration[KEYSTONE_TYPE] = promptUser("[YELLOW] Specify the desired number of Keystone's (no special abilities, but can sustain on a small quantity of food):", 0, 600);
     currentGeneration[CLAIRVOYANT_TYPE] = promptUser("[BLUE] Specify the desired number of Clairvoyant's (can spot food from afar):", 0, 600);
     currentGeneration[REDBULL_TYPE] = promptUser("[RED] Specify the desired number of RedBull's (fast on their feet, but very hungry!)", 0, 600);
-    currentGeneration[ASCENDANT_TYPE] = promptUser("[PINK] Specify the desired number of Ascendant's (become much stronger once they encounter food for the first time", 0, 600);
-    currentGeneration[SUITOR_TYPE] = promptUser("[SUITOR] Specify the desired number of Suitor's - each Suitor wants to mate with a specific breed of Individuals. The type of Suitor gets chosen randomly at spawn time.",
+    currentGeneration[ASCENDANT_TYPE] = promptUser("[CYAN] Specify the desired number of Ascendant's (become much stronger once they encounter food for the first time", 0, 600);
+    currentGeneration[SUITOR_TYPE] = promptUser("[PINK] Specify the desired number of Suitor's - each Suitor wants to mate with a specific breed of Individuals. The type of Suitor gets chosen randomly at spawn time.",
                                                 0, 600);
     quantityOfFood = promptUser("[DARK GREEN] Specify the desired quantity of food", 0, 2500);
     clock.restart();

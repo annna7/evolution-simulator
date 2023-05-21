@@ -12,6 +12,7 @@
 class OffensiveFightingStrategy : public FightingStrategy {
 public:
     FightingOutcome fight(const std::shared_ptr<FightingStrategy>& other) override;
+    sf::Color getColor() override;
 };
 
 
