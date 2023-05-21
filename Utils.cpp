@@ -48,7 +48,7 @@ std::string getPercentage(int newStat, int oldStat) {
     if (oldStat == 0) {
         return "N/A";
     } else {
-        return std::to_string((newStat * 100) / oldStat) + "% survived.";
+        return std::to_string((newStat * 100) / oldStat) + "%";
     }
 }
 

@@ -14,6 +14,8 @@
 #include "Cell.h"
 #include "Suitor.h"
 #include "IndividualType.h"
+#include "FightingStrategyType.h"
+
 
 // altfel crapa
 template <typename T> class Suitor;
@@ -35,13 +37,13 @@ private:
     std::vector<std::shared_ptr<Cell>> futureBoard;
     std::vector<sf::Vertex> displayMatrix;
     std::unordered_map<IndividualType, int> currentGeneration;
-
+    std::unordered_map<FightingStrategyType, int> fightingStrategyMap;
     int width, height;
     int quantityOfFood;
-
     sf::Clock clock;
     sf::Font font;
     sf::RenderWindow window;
+
     Game();
     void generateCells();
     void display();
@@ -71,13 +73,9 @@ private:
     void assertFitnessOfIndividual(const std::shared_ptr<Individual>& individual);
     void resetGeneration(std::unordered_map<IndividualType, int> generation);
     int getTotalIndividuals() const;
-
     bool performSuitorCheck(const std::shared_ptr<Individual>& individual, const std::shared_ptr<Individual>& suitorCandidate);
-
     void handleInteraction(const std::shared_ptr<Individual>& individual1, const std::shared_ptr<Individual>& individual2);
+    void handleFightingOutcome(const std::shared_ptr<Individual> &individual1, const std::shared_ptr<Individual> &individual2, FightingOutcome fightingOutcome);
 
-    void
-    handleFightingOutcome(const std::shared_ptr<Individual> &individual1,
-                          const std::shared_ptr<Individual> &individual2,
-                          FightingOutcome fightingOutcome);
+    int getTotalSurvivors();
 };

@@ -6,6 +6,7 @@
 #define OOP_FIGHTINGSTRATEGY_H
 
 #include "FightingOutcome.h"
+#include "Exceptions.h"
 #include <memory>
 
 class FightingStrategy {

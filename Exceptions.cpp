@@ -29,3 +29,5 @@ FontLoadingException::FontLoadingException(const std::string &file, const std::s
 NoFoodException::NoFoodException(int x, int y) : runtime_error("No food at position (" + std::to_string(x) + ", " + std::to_string(y) + ") for our creature.") {}
 
 InvalidFightingOutcomeException::InvalidFightingOutcomeException() : std::runtime_error("Invalid fighting outcome!") {}
+
+InvalidFightingStrategyType::InvalidFightingStrategyType() : std::runtime_error("Invalid fighting strategy type!") {}

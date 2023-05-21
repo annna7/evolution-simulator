@@ -6,6 +6,8 @@
 #include "CellFactory.h"
 #include "IndividualType.h"
 #include "Exceptions.h"
+#include "DefensiveFightingStrategy.h"
+#include "OffensiveFightingStrategy.h"
 #include <SFML/Graphics.hpp>
 
 
@@ -18,6 +20,7 @@ void Game::produceOffspring(int pos) {
     for (int i = 0; i < 3; ++i) {
         offspring->eat();
     }
+
     futureBoard[freeSpot] = offspring;
 }
 
@@ -52,7 +55,7 @@ Game &Game::getInstance() {
 std::unordered_map<IndividualType, int> Game::computeNewGeneration() {
     std::unordered_map<IndividualType, int> newGeneration;
     int totalIndividuals = getTotalIndividuals();
-    int totalSurvivors = getTotalSurvivalRate() * totalIndividuals / 100;
+    int totalSurvivors = getTotalSurvivors();
     if (totalSurvivors == 0) {
         throw NoSurvivorsException(epochCounter);
     }
@@ -77,6 +80,14 @@ void Game::assertFitnessOfIndividual(const std::shared_ptr<Individual>& individu
             survivorMap[ASCENDANT_TYPE] += 1;
         } else {
             survivorMap[SUITOR_TYPE] += 1;
+        }
+
+        if (individual->getFightingStrategy() == nullptr) {
+            fightingStrategyMap[LOVER_TYPE] += 1;
+        } else if (std::dynamic_pointer_cast<DefensiveFightingStrategy>(individual->getFightingStrategy())) {
+            fightingStrategyMap[DEFENSIVE_TYPE] += 1;
+        } else if (std::dynamic_pointer_cast<OffensiveFightingStrategy>(individual->getFightingStrategy())) {
+            fightingStrategyMap[OFFENSIVE_TYPE] += 1;
         }
     }
 }
@@ -175,9 +186,6 @@ void Game::display() {
                     try {
                         checkCoordinates(newPosition);
                         if (auto individualFound = dynamic_pointer_cast<Individual>(futureBoard[newPosition])) {
-                            // could this be done more elegantly?
-                            // took care of Suitor below, just need to call checkSuitor<typeof(individualFound)>, where individualFound is one of the basic Individual derived classes
-                            // i.e. Clairvoyant, RedBull, Keystone, Ascendant
                             try {
                                 handleInteraction(individual, individualFound);
                             } catch (const InvalidFightingOutcomeException& e) {
@@ -347,10 +355,15 @@ void Game::showStatistics() {
 
     for (auto type = (IndividualType)(INDIVIDUAL_TYPE_BEGIN + 1); type != INDIVIDUAL_TYPE_END; type = IndividualType(type + 1)) {
         output += individualTypeToString(type) + ": " +
-                  getPercentage(survivorMap[type], currentGeneration[type]) +
+                  getPercentage(survivorMap[type], currentGeneration[type]) + " survived. "
                   "( " + std::to_string(survivorMap[type]) + " / " + std::to_string(currentGeneration[type]) + ")\n";
     }
-    output += "Total survival rate: " + std::to_string(getTotalSurvivalRate()) + "%\n";
+
+    for (auto type = (FightingStrategyType)(FIGHTING_TYPE_BEGIN + 1); type != FIGHTING_TYPE_END; type = FightingStrategyType(type + 1)) {
+        output += fightingStrategyTypeToString(type) + ": " + getPercentage(fightingStrategyMap[type], getTotalSurvivors()) + "   ";
+    }
+
+    output += "\nTotal survival rate: " + std::to_string(getTotalSurvivalRate()) + "%\n";
     text.setString(output);
     window.draw(text);
 }
@@ -359,6 +372,9 @@ void Game::resetGeneration(std::unordered_map<IndividualType, int> generation) {
     for (auto individualType = (IndividualType)(INDIVIDUAL_TYPE_BEGIN + 1); individualType != INDIVIDUAL_TYPE_END; individualType = (IndividualType)(individualType + 1)) {
         currentGeneration[individualType] = generation[individualType];
         survivorMap[individualType] = 0;
+    }
+    for (auto fightingStrategyType = (FightingStrategyType)(FIGHTING_TYPE_BEGIN + 1); fightingStrategyType != FIGHTING_TYPE_END; fightingStrategyType = (FightingStrategyType)(fightingStrategyType + 1)) {
+        fightingStrategyMap[fightingStrategyType] = 0;
     }
     resetBoard();
 }
@@ -440,4 +456,12 @@ void Game::handleFightingOutcome(const std::shared_ptr<Individual>& individual1,
         default:
             throw InvalidFightingOutcomeException();
     }
+}
+
+int Game::getTotalSurvivors() {
+    int totalSurvivors = 0;
+    for (auto individualType = (IndividualType)(INDIVIDUAL_TYPE_BEGIN + 1); individualType != INDIVIDUAL_TYPE_END; individualType = (IndividualType)(individualType + 1)) {
+        totalSurvivors += survivorMap[individualType];
+    }
+    return totalSurvivors;
 }

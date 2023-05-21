@@ -27,6 +27,11 @@ public:
     explicit InvalidFightingOutcomeException();
 };
 
+class InvalidFightingStrategyType : public std::runtime_error {
+public:
+    explicit InvalidFightingStrategyType();
+};
+
 class RanOutOfEmptyPositionsException : public std::runtime_error {
 public:
     explicit RanOutOfEmptyPositionsException(int x, int y, int radius);
