@@ -219,6 +219,10 @@ Game::Game() : width(MAX_X),
     clock.restart();
     window.create(sf::VideoMode(width * Cell::CELL_SIZE, height * Cell::CELL_SIZE + BOTTOM_BAR_HEIGHT), "Game of Life");
 
+    // testing to see why cppcheck fails
+    std::shared_ptr<Ascendant> ascendant = std::make_shared<Ascendant>(0, 0);
+    std::cout << ascendant->getHunger() << std::endl;
+
     try {
         initializeFont(font);
     } catch (const FontLoadingException &e) {
