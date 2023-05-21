@@ -3,6 +3,3 @@
 //
 
 #include "FightingStrategy.h"
-#include <memory>
-
-FightingOutcome FightingStrategy::fight(const std::shared_ptr <FightingStrategy> &other) { return DIE_LIVE; }

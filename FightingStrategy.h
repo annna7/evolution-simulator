@@ -11,7 +11,7 @@
 
 class FightingStrategy {
 public:
-    virtual FightingOutcome fight(const std::shared_ptr<FightingStrategy> &other);
+    virtual FightingOutcome fight(const std::shared_ptr<FightingStrategy> &other) = 0;
     virtual ~FightingStrategy() = default;
 };
 

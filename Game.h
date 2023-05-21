@@ -32,6 +32,8 @@ public:
     bool checkSuitor(std::shared_ptr<Individual> a, std::shared_ptr<T> b);
 
 private:
+    int killedIndividuals;
+    int matingsOccurred;
     std::unordered_map<IndividualType, int> survivorMap;
     std::vector<std::shared_ptr<Cell>> board;
     std::vector<std::shared_ptr<Cell>> futureBoard;

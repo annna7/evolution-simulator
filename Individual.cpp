@@ -5,9 +5,14 @@
 #include "Utils.h"
 #include "Exceptions.h"
 #include "DefensiveFightingStrategy.h"
+#include "OffensiveFightingStrategy.h"
 
 Individual::Individual(int x, int y) : x(x), y(y), health(0), direction(randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS - 1)), speed(DEFAULT_SPEED) {
-    fightingStrategy = std::make_shared<DefensiveFightingStrategy>();
+    if (randomIntegerFromInterval(0, 1) == 0) {
+        fightingStrategy = std::make_shared<OffensiveFightingStrategy>();
+    } else {
+        fightingStrategy = std::make_shared<DefensiveFightingStrategy>();
+    }
 }
 
 std::ostream &operator<<(std::ostream &os, const Individual &individual) {

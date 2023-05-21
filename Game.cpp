@@ -36,6 +36,7 @@ void Game::mate(std::shared_ptr<K> indiv, std::shared_ptr<Suitor<K>> suitor) {
         // If there are no more empty spots on the board, the mating process stops.
         try {
             produceOffspring<K>(indiv->getPosition());
+            matingsOccurred++;
         } catch (const RanOutOfEmptyPositionsException &e) {
             std::cout << e.what() << std::endl;
         }
@@ -364,11 +365,14 @@ void Game::showStatistics() {
     }
 
     output += "\nTotal survival rate: " + std::to_string(getTotalSurvivalRate()) + "%\n";
+    output += "Total offspring produced: " + std::to_string(matingsOccurred) + ". Total individuals killed: " + std::to_string(killedIndividuals) + ".\n";
     text.setString(output);
     window.draw(text);
 }
 
 void Game::resetGeneration(std::unordered_map<IndividualType, int> generation) {
+    killedIndividuals = 0;
+    matingsOccurred = 0;
     for (auto individualType = (IndividualType)(INDIVIDUAL_TYPE_BEGIN + 1); individualType != INDIVIDUAL_TYPE_END; individualType = (IndividualType)(individualType + 1)) {
         currentGeneration[individualType] = generation[individualType];
         survivorMap[individualType] = 0;
@@ -446,11 +450,15 @@ void Game::handleFightingOutcome(const std::shared_ptr<Individual>& individual1,
             break;
         }
         case LIVE_DIE: {
+            std::cout << "Individual killed.\n";
+            killedIndividuals++;
             futureBoard[individual1->getPosition()] = individual1;
             break;
         }
         case DIE_LIVE: {
-            futureBoard[individual2->getPosition()] = individual2;
+            std::cout << "Individual killed.\n";
+            killedIndividuals++;
+            futureBoard[individual1->getPosition()] = individual2;
             break;
         }
         default:
