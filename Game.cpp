@@ -25,8 +25,8 @@ void Game::produceOffspring(int pos) {
 }
 
 template<typename K>
-void Game::mate(std::shared_ptr<K> indiv, std::shared_ptr<Suitor<K>> suitor) {
-    if (indiv == nullptr || suitor == nullptr) {
+void Game::mate(std::shared_ptr<K> individual, std::shared_ptr<Suitor<K>> suitor) {
+    if (individual == nullptr || suitor == nullptr) {
         return;
     }
 
@@ -35,7 +35,7 @@ void Game::mate(std::shared_ptr<K> indiv, std::shared_ptr<Suitor<K>> suitor) {
     for (int i = 0; i < offspringQuantity; ++i) {
         // If there are no more empty spots on the board, the mating process stops.
         try {
-            produceOffspring<K>(indiv->getPosition());
+            produceOffspring<K>(individual->getPosition());
             matingsOccurred++;
         } catch (const RanOutOfEmptyPositionsException &e) {
             std::cout << e.what() << std::endl;
@@ -223,6 +223,8 @@ Game::Game() : width(MAX_X),
     clock.restart();
     window.create(sf::VideoMode(width * Cell::CELL_SIZE, height * Cell::CELL_SIZE + BOTTOM_BAR_HEIGHT), "Game of Life");
 
+    killedIndividuals = 0;
+    matingsOccurred = 0;
     // testing to see why cppcheck fails
     std::shared_ptr<Ascendant> ascendant = std::make_shared<Ascendant>(0, 0);
     std::cout << ascendant->getHunger() << std::endl;

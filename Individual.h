@@ -26,7 +26,7 @@ public:
     void move();
     [[nodiscard]] bool checkIfAlive() const;
     [[nodiscard]] virtual sf::Color getOwnColor() const = 0;
-    sf::Color getColor() const override;
+    [[nodiscard]] sf::Color getColor() const override;
 
 private:
     int x, y, health, direction, speed;

@@ -22,7 +22,7 @@ As each epoch ends, observe the evolution of a wide variety of species as they s
   - **Keystone's**: they don't have any special abilities, but they need a small quantity of food.
   - **RedBull's**: they are very fast, but they need to eat a lot of food.
   - **Ascendant's**: limited at the beginning, but they get stronger once they eat the first time.
-  - **Clairvoyant's**: they can see the food in the cells around them, but they need a large quantity of food.
+  - **Clairvoyant's**: they can see the food in the surrounding cells, but they need a large quantity of food.
   - **Suitor's**: they want to mate with a specific type of individual to produce more of their kind.
   
 ### Tema 0

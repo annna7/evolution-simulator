@@ -54,15 +54,20 @@ bool Individual::operator==(const Individual &rhs) const {
            y == rhs.y &&
            speed == rhs.speed &&
            direction == rhs.direction &&
-           health == rhs.health;
+           health == rhs.health &&
+           fightingStrategy == rhs.fightingStrategy;
 }
 
 Individual &Individual::operator=(const Individual &other) {
+    if (this == &other) {
+        return *this;
+    }
     x = other.x;
     y = other.y;
     speed = other.speed;
     direction = other.direction;
     health = other.health;
+    fightingStrategy = other.fightingStrategy;
     return *this;
 }
 
@@ -97,8 +102,8 @@ std::shared_ptr<FightingStrategy> Individual::getFightingStrategy() {
     return fightingStrategy;
 }
 
-FightingOutcome Individual::fight(const std::shared_ptr<Individual>& other) {
-    return fightingStrategy->fight(other->getFightingStrategy());
+FightingOutcome Individual::fight(const std::shared_ptr<Individual>& individual) {
+    return fightingStrategy->fight(individual->getFightingStrategy());
 }
 
 Individual::Individual(int x, int y, std::shared_ptr<FightingStrategy> fightingStrategy) : Individual(x, y) {

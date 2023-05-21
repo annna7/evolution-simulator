@@ -67,7 +67,7 @@ private:
     int getTotalSurvivalRate() const;
 
     template <typename K>
-    void mate(std::shared_ptr<K> indiv, std::shared_ptr<Suitor<K>> suitor);
+    void mate(std::shared_ptr<K> individual, std::shared_ptr<Suitor<K>> suitor);
     int findFreeSpot(int pos, int radius);
 
     template <typename T>
