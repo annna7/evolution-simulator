@@ -165,7 +165,8 @@ void Game::display() {
                         futureBoard[newPosition] = individual;
                     } else if (auto individualFound = dynamic_pointer_cast<Individual>(futureBoard[newPosition])){
                         // check whether one of them is a suitor
-                        // can this be done more efficiently?
+                        // can this be done more elegantly?
+                        // checkSuitor needs to be called for the type of individualFound
                         if (checkSuitor<Clairvoyant>(individual, dynamic_pointer_cast<Clairvoyant>(individualFound))
                                 || checkSuitor<RedBull>(individual, dynamic_pointer_cast<RedBull>(individualFound))
                                         || checkSuitor<Keystone>(individual, dynamic_pointer_cast<Keystone>(individualFound))
@@ -205,7 +206,8 @@ Game::Game() : width(MAX_X),
     currentGeneration[CLAIRVOYANT_TYPE] = promptUser("[BLUE] Specify the desired number of Clairvoyant's (can spot food from afar):", 0, 600);
     currentGeneration[REDBULL_TYPE] = promptUser("[RED] Specify the desired number of RedBull's (fast on their feet, but very hungry!)", 0, 600);
     currentGeneration[ASCENDANT_TYPE] = promptUser("[PINK] Specify the desired number of Ascendant's (become much stronger once they encounter food for the first time", 0, 600);
-    currentGeneration[SUITOR_TYPE] = promptUser("[SUITOR] Specify the desired number of Suitor's - each Suitor wants to mate with a specific breed of Individuals, which gets generated randomly.", 0, 600);
+    currentGeneration[SUITOR_TYPE] = promptUser("[SUITOR] Specify the desired number of Suitor's - each Suitor wants to mate with a specific breed of Individuals. Only RedBulls and Ascendants are charming enough to have Suitors running after them. The type of Suitor gets chosen randomly.",
+                                                0, 600);
     quantityOfFood = promptUser("[DARK GREEN] Specify the desired quantity of food", 0, 2500);
     clock.restart();
     window.create(sf::VideoMode(width * Cell::CELL_SIZE, height * Cell::CELL_SIZE + BOTTOM_BAR_HEIGHT), "Game of Life");
@@ -226,26 +228,12 @@ void Game::generateCells() {
     std::cout << getTotalIndividuals() << std::endl;
 
     auto randomPositions = generateRandomArray(getTotalIndividuals() + quantityOfFood, 0, width * height);
-    for (int i = lowerBound; i < lowerBound + currentGeneration[KEYSTONE_TYPE]; i++) {
-        board[randomPositions[i]] = CellFactory::createKeystone(randomPositions[i] / height, randomPositions[i] % height);
+    for (auto type = (IndividualType)(INDIVIDUAL_TYPE_BEGIN + 1); type != INDIVIDUAL_TYPE_END; type = (IndividualType)(type + 1)) {
+        for (int i = lowerBound; i < lowerBound + currentGeneration[type]; i++) {
+            board[randomPositions[i]] = CellFactory::createIndividual(randomPositions[i] / height, randomPositions[i] % height, type);
+        }
+        lowerBound += currentGeneration[type];
     }
-    lowerBound += currentGeneration[KEYSTONE_TYPE];
-    for (int i = lowerBound; i < lowerBound + currentGeneration[CLAIRVOYANT_TYPE]; i++) {
-        board[randomPositions[i]] = CellFactory::createClairvoyant(randomPositions[i] / height, randomPositions[i] % height);
-    }
-    lowerBound += currentGeneration[CLAIRVOYANT_TYPE];
-    for (int i = lowerBound; i < lowerBound + currentGeneration[REDBULL_TYPE]; i++) {
-        board[randomPositions[i]] = CellFactory::createRedBull(randomPositions[i] / height, randomPositions[i] % height);
-    }
-    lowerBound += currentGeneration[REDBULL_TYPE];
-    for (int i = lowerBound; i < lowerBound + currentGeneration[ASCENDANT_TYPE]; i++) {
-        board[randomPositions[i]] = CellFactory::createAscendant(randomPositions[i] / height, randomPositions[i] % height);
-    }
-    lowerBound += currentGeneration[ASCENDANT_TYPE];
-    for (int i = lowerBound; i < lowerBound + currentGeneration[SUITOR_TYPE]; i++) {
-        board[randomPositions[i]] = CellFactory::createSuitor(randomPositions[i] / height, randomPositions[i] % height);
-    }
-    lowerBound += currentGeneration[SUITOR_TYPE];
     for (int i = lowerBound; i < lowerBound + quantityOfFood; i++) {
         board[randomPositions[i]] = CellFactory::createFood(randomPositions[i] / height, randomPositions[i] % height);
     }

@@ -46,3 +46,20 @@ std::shared_ptr<Individual> CellFactory::createSuitor(int x, int y) {
             return nullptr;
     }
 }
+
+std::shared_ptr<Individual> CellFactory::createIndividual(int x, int y, IndividualType type) {
+    switch (type) {
+        case ASCENDANT_TYPE:
+            return createAscendant(x, y);
+        case KEYSTONE_TYPE:
+            return createKeystone(x, y);
+        case REDBULL_TYPE:
+            return createRedBull(x, y);
+        case CLAIRVOYANT_TYPE:
+            return createClairvoyant(x, y);
+        case SUITOR_TYPE:
+            return createSuitor(x, y);
+        default:
+            return nullptr;
+    }
+}
