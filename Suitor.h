@@ -1,7 +1,3 @@
-//
-// Created by anna on 5/14/23.
-//
-
 #ifndef OOP_SUITOR_H
 #define OOP_SUITOR_H
 

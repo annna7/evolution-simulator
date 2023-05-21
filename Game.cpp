@@ -27,8 +27,8 @@ void Game::mate(std::shared_ptr<K> indiv, std::shared_ptr<Suitor<K>> suitor) {
         return;
     }
 
-    // When a couple mates, they can either produce one, two, three, four or five babies - this number gets chosen randomly.
-    int offspringQuantity = randomIntegerFromInterval(1, 5);
+    // When a couple mates, they can either produce one, two or three babies - this number gets chosen randomly.
+    int offspringQuantity = randomIntegerFromInterval(1, 3);
     for (int i = 0; i < offspringQuantity; ++i) {
         // If there are no more empty spots on the board, the mating process stops.
         try {
@@ -178,10 +178,9 @@ void Game::display() {
                             // could this be done more elegantly?
                             // took care of Suitor below, just need to call checkSuitor<typeof(individualFound)>, where individualFound is one of the basic Individual derived classes
                             // i.e. Clairvoyant, RedBull, Keystone, Ascendant
-                            if (checkSuitor<Clairvoyant>(individual, dynamic_pointer_cast<Clairvoyant>(individualFound))
-                                || checkSuitor<RedBull>(individual, dynamic_pointer_cast<RedBull>(individualFound))
-                                || checkSuitor<Keystone>(individual, dynamic_pointer_cast<Keystone>(individualFound))
-                                || checkSuitor<Ascendant>(individual, dynamic_pointer_cast<Ascendant>(individualFound))) {}
+                            if (!performSuitorCheck(individualFound, individual)) {
+                                performSuitorCheck(individual, individualFound);
+                            }
                             try {
                                 int freePosition = findFreeSpot(individual->getPosition(), 5);
                                 futureBoard[freePosition] = individual;
@@ -377,7 +376,6 @@ void Game::resetBoard() {
 
 template <typename T>
 bool Game::checkSuitor(std::shared_ptr<Individual> a, std::shared_ptr<T> b) {
-
     if (dynamic_pointer_cast<Suitor<T>>(a)) {
         mate<T>(b, dynamic_pointer_cast<Suitor<T>>(a));
         return true;
@@ -393,6 +391,23 @@ std::ostream &operator<<(std::ostream &os, const Game &game) {
     os << " width: " << game.width << " height: " << game.height << " numberOfIndividuals: " << game.getTotalIndividuals()
        << " numberOfFood: " << game.quantityOfFood;
     return os;
+}
+
+bool Game::performSuitorCheck(std::shared_ptr<Individual> individual, std::shared_ptr<Individual> suitorCandidate) {
+    // call check suitor for individual's type
+    if (checkSuitor<Clairvoyant>(suitorCandidate, dynamic_pointer_cast<Clairvoyant>(individual))) {
+        return true;
+    }
+    if (checkSuitor<RedBull>(suitorCandidate, dynamic_pointer_cast<RedBull>(individual))) {
+        return true;
+    }
+    if (checkSuitor<Keystone>(suitorCandidate, dynamic_pointer_cast<Keystone>(individual))) {
+        return true;
+    }
+    if (checkSuitor<Ascendant>(suitorCandidate, dynamic_pointer_cast<Ascendant>(individual))) {
+        return true;
+    }
+    return false;
 }
 
 

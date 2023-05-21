@@ -71,4 +71,6 @@ private:
     void assertFitnessOfIndividual(const std::shared_ptr<Individual>& individual);
     void resetGeneration(std::unordered_map<IndividualType, int> generation);
     int getTotalIndividuals() const;
+
+    bool performSuitorCheck(std::shared_ptr<Individual> individual, std::shared_ptr<Individual> suitorCandidate);
 };
