@@ -13,6 +13,9 @@ class DefensiveFightingStrategy : public FightingStrategy {
 public:
     FightingOutcome fight(const std::shared_ptr<FightingStrategy> &other) override;
     sf::Color getColor() override;
+    [[nodiscard]] std::shared_ptr<FightingStrategy> clone() const override {
+        return std::make_shared<DefensiveFightingStrategy>(*this);
+    }
 };
 
 

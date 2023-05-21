@@ -1,6 +1,6 @@
 # Evolution Simulator
 
-As each epoch ends, observe the evolution of a wide variety of species as they struggle to live and consume as much food as they can.
+As each epoch ends, observe the evolution of a wide variety of species as they struggle to live on and consume as much food as they can.
 
 ### Rules
 

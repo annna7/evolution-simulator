@@ -13,6 +13,7 @@
 class FightingStrategy {
 public:
     virtual FightingOutcome fight(const std::shared_ptr<FightingStrategy> &other) = 0;
+    virtual std::shared_ptr<FightingStrategy> clone() const = 0; // Clone method
     virtual ~FightingStrategy() = default;
     virtual sf::Color getColor() = 0;
 };

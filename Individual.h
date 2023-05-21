@@ -10,7 +10,7 @@ class Individual : public Cell {
 public:
     Individual(int x, int y, std::shared_ptr<FightingStrategy> fightingStrategy);
     Individual(int x, int y);
-    Individual(const Individual &other) = default;
+    Individual(const Individual &other);
     Individual& operator=(const Individual &other);
     ~Individual() override;
     friend std::ostream &operator<<(std::ostream &os, const Individual &individual);

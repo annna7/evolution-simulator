@@ -17,3 +17,4 @@ FightingOutcome DefensiveFightingStrategy::fight(const std::shared_ptr<FightingS
 sf::Color DefensiveFightingStrategy::getColor() {
     return sf::Color::White;
 }
+

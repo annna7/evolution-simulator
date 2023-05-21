@@ -3,3 +3,4 @@
 //
 
 #include "FightingStrategy.h"
+#include <memory>

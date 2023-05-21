@@ -55,20 +55,7 @@ bool Individual::operator==(const Individual &rhs) const {
            speed == rhs.speed &&
            direction == rhs.direction &&
            health == rhs.health &&
-           fightingStrategy == rhs.fightingStrategy;
-}
-
-Individual &Individual::operator=(const Individual &other) {
-    if (this == &other) {
-        return *this;
-    }
-    x = other.x;
-    y = other.y;
-    speed = other.speed;
-    direction = other.direction;
-    health = other.health;
-    fightingStrategy = other.fightingStrategy;
-    return *this;
+           fightingStrategy.get() == rhs.fightingStrategy.get();
 }
 
 Individual::~Individual() = default;
@@ -114,3 +101,17 @@ sf::Color Individual::getColor() const {
     return fightingStrategy ? colorMixer(getOwnColor(), fightingStrategy->getColor()) : getOwnColor();
 }
 
+Individual::Individual(const Individual &other) : x(other.x), y(other.y), health(other.health), direction(other.direction), speed(other.speed), fightingStrategy(other.fightingStrategy->clone()) {}
+
+Individual &Individual::operator=(const Individual &other) {
+    if (this == &other) {
+        return *this;
+    }
+    x = other.x;
+    y = other.y;
+    speed = other.speed;
+    direction = other.direction;
+    health = other.health;
+    fightingStrategy = other.fightingStrategy->clone();
+    return *this;
+}

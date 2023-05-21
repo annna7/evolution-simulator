@@ -21,3 +21,4 @@ FightingOutcome OffensiveFightingStrategy::fight(const std::shared_ptr<FightingS
 sf::Color OffensiveFightingStrategy::getColor() {
     return sf::Color::Black;
 }
+

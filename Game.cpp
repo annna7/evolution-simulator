@@ -226,6 +226,7 @@ Game::Game() : width(MAX_X),
     killedIndividuals = 0;
     matingsOccurred = 0;
     // testing to see why cppcheck fails
+    // although Ascendant->getHunger() gets called, for some reason cppcheck thinks it's not unless I do this
     std::shared_ptr<Ascendant> ascendant = std::make_shared<Ascendant>(0, 0);
     std::cout << ascendant->getHunger() << std::endl;
 

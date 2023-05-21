@@ -35,10 +35,12 @@ private:
     int killedIndividuals;
     int matingsOccurred;
     std::unordered_map<IndividualType, int> survivorMap;
+    std::unordered_map<FightingStrategyType, int> fightingStrategiesSurvivorMap;
     std::vector<std::shared_ptr<Cell>> board;
     std::vector<std::shared_ptr<Cell>> futureBoard;
     std::vector<sf::Vertex> displayMatrix;
     std::unordered_map<IndividualType, int> currentGeneration;
+    std::unordered_map<FightingStrategyType, int> currentFightingStrategies;
     std::unordered_map<FightingStrategyType, int> fightingStrategyMap;
     int width, height;
     int quantityOfFood;
