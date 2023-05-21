@@ -178,13 +178,9 @@ void Game::display() {
                             // could this be done more elegantly?
                             // took care of Suitor below, just need to call checkSuitor<typeof(individualFound)>, where individualFound is one of the basic Individual derived classes
                             // i.e. Clairvoyant, RedBull, Keystone, Ascendant
-                            if (!performSuitorCheck(individualFound, individual)) {
-                                performSuitorCheck(individual, individualFound);
-                            }
                             try {
-                                int freePosition = findFreeSpot(individual->getPosition(), 5);
-                                futureBoard[freePosition] = individual;
-                            } catch (const RanOutOfEmptyPositionsException &e) {
+                                handleInteraction(individual, individualFound);
+                            } catch (const InvalidFightingOutcomeException& e) {
                                 std::cout << e.what() << std::endl;
                             }
                         } else {
@@ -393,7 +389,7 @@ std::ostream &operator<<(std::ostream &os, const Game &game) {
     return os;
 }
 
-bool Game::performSuitorCheck(std::shared_ptr<Individual> individual, std::shared_ptr<Individual> suitorCandidate) {
+bool Game::performSuitorCheck(const std::shared_ptr<Individual>& individual, const std::shared_ptr<Individual>& suitorCandidate) {
     // call check suitor for individual's type
     if (checkSuitor<Clairvoyant>(suitorCandidate, dynamic_pointer_cast<Clairvoyant>(individual))) {
         return true;
@@ -410,4 +406,38 @@ bool Game::performSuitorCheck(std::shared_ptr<Individual> individual, std::share
     return false;
 }
 
+void Game::handleInteraction(const std::shared_ptr<Individual>& individual1, const std::shared_ptr<Individual>& individual2) {
+    if (individual1->getFightingStrategy() == nullptr && individual2->getFightingStrategy() == nullptr) {
+        handleFightingOutcome(individual1, individual2, LIVE_LIVE);
+    } else if (individual1->getFightingStrategy() == nullptr) {
+        performSuitorCheck(individual2, individual1);
+    } else if (individual2->getFightingStrategy() == nullptr) {
+        performSuitorCheck(individual1, individual2);
+    } else {
+        handleFightingOutcome(individual1, individual2, individual1->fight(individual2));
+    }
+}
 
+void Game::handleFightingOutcome(const std::shared_ptr<Individual>& individual1, const std::shared_ptr<Individual>& individual2, FightingOutcome fightingOutcome) {
+    switch (fightingOutcome) {
+        case LIVE_LIVE: {
+            try {
+                int freePosition = findFreeSpot(individual1->getPosition(), 5);
+                futureBoard[freePosition] = individual1;
+            } catch (const RanOutOfEmptyPositionsException &e) {
+                std::cout << e.what() << std::endl;
+            }
+            break;
+        }
+        case LIVE_DIE: {
+            futureBoard[individual1->getPosition()] = individual1;
+            break;
+        }
+        case DIE_LIVE: {
+            futureBoard[individual2->getPosition()] = individual2;
+            break;
+        }
+        default:
+            throw InvalidFightingOutcomeException();
+    }
+}

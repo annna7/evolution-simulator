@@ -1,9 +1,14 @@
 
 #include "Individual.h"
+#include <memory>
+#include <utility>
 #include "Utils.h"
 #include "Exceptions.h"
+#include "DefensiveFightingStrategy.h"
 
-Individual::Individual(int x, int y) : x(x), y(y), health(0), direction(randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS - 1)), speed(DEFAULT_SPEED) {}
+Individual::Individual(int x, int y) : x(x), y(y), health(0), direction(randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS - 1)), speed(DEFAULT_SPEED) {
+    fightingStrategy = std::make_shared<DefensiveFightingStrategy>();
+}
 
 std::ostream &operator<<(std::ostream &os, const Individual &individual) {
     os << "INDIVIDUAL - x: " << individual.x << " " << "y: " << individual.y << "\n";
@@ -81,4 +86,16 @@ bool Individual::checkIfAlive() const {
 void Individual::setCoords(int xx, int yy) {
     x = xx;
     y = yy;
+}
+
+std::shared_ptr<FightingStrategy> Individual::getFightingStrategy() {
+    return fightingStrategy;
+}
+
+FightingOutcome Individual::fight(const std::shared_ptr<Individual>& other) {
+    return fightingStrategy->fight(other->getFightingStrategy());
+}
+
+Individual::Individual(int x, int y, std::shared_ptr<FightingStrategy> fightingStrategy) : Individual(x, y) {
+    this->fightingStrategy = std::move(fightingStrategy);
 }

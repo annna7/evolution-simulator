@@ -22,6 +22,11 @@ public:
     explicit InvalidIndividualPositionException(int x, int y);
 };
 
+class InvalidFightingOutcomeException : public std::runtime_error {
+public:
+    explicit InvalidFightingOutcomeException();
+};
+
 class RanOutOfEmptyPositionsException : public std::runtime_error {
 public:
     explicit RanOutOfEmptyPositionsException(int x, int y, int radius);

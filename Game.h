@@ -72,5 +72,12 @@ private:
     void resetGeneration(std::unordered_map<IndividualType, int> generation);
     int getTotalIndividuals() const;
 
-    bool performSuitorCheck(std::shared_ptr<Individual> individual, std::shared_ptr<Individual> suitorCandidate);
+    bool performSuitorCheck(const std::shared_ptr<Individual>& individual, const std::shared_ptr<Individual>& suitorCandidate);
+
+    void handleInteraction(const std::shared_ptr<Individual>& individual1, const std::shared_ptr<Individual>& individual2);
+
+    void
+    handleFightingOutcome(const std::shared_ptr<Individual> &individual1,
+                          const std::shared_ptr<Individual> &individual2,
+                          FightingOutcome fightingOutcome);
 };
