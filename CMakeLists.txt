@@ -146,7 +146,7 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets
 #target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR})
 
 # NOTE: update executable name in .github/workflows/cmake.yml:25 when changing name here
-add_executable(${PROJECT_NAME} main.cpp Game.cpp Utils.cpp Individual.cpp Individual.h Food.cpp Food.h Cell.h RedBull.h Clairvoyant.h Keystone.h Ascendant.cpp Ascendant.h Suitor.cpp Suitor.h CellFactory.h CellFactory.cpp IndividualType.h IndividualType.cpp Exceptions.h Exceptions.cpp)
+add_executable(${PROJECT_NAME} main.cpp Game.cpp Utils.cpp Individual.cpp Individual.h Food.cpp Food.h Cell.h RedBull.h Clairvoyant.h Keystone.h Ascendant.cpp Ascendant.h Suitor.h CellFactory.h CellFactory.cpp IndividualType.h IndividualType.cpp Exceptions.h Exceptions.cpp Keystone.cpp RedBull.cpp Clairvoyant.cpp)
 
 ### INCLUDE SFML LIBRARY ###
 #find_package(SFML 2.5 COMPONENTS graphics audio REQUIRED)

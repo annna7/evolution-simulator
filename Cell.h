@@ -1,12 +1,9 @@
-//
-// Created by anna on 5/6/23.
-//
 
 #ifndef OOP_CELL_H
 #define OOP_CELL_H
 
 
-#include <SFML/Graphics/Shape.hpp>
+#include <SFML/Graphics/Color.hpp>
 
 class Cell {
 public:

@@ -1,7 +1,6 @@
 #ifndef OOP_EXCEPTIONS_H
 #define OOP_EXCEPTIONS_H
 
-#include <exception>
 #include <stdexcept>
 #include "IndividualType.h"
 

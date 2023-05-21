@@ -6,10 +6,10 @@
 
 class Clairvoyant : public Individual {
 public:
-    Clairvoyant(int x, int y) : Individual(x, y) {}
-    [[nodiscard]] int getHunger() const override { return 2; }
-    [[nodiscard]] int getVision() const override { return 5; }
-    [[nodiscard]] sf::Color getColor() override { return sf::Color::Blue; }
+    Clairvoyant(int x, int y);
+    [[nodiscard]] int getHunger() const override;
+    [[nodiscard]] int getVision() const override;
+    [[nodiscard]] sf::Color getColor() override;
 };
 
 #endif //OOP_CLAIRVOYANT_H

@@ -1,5 +1,5 @@
 #include "IndividualType.h"
-#include "string"
+#include <string>
 
 std::string individualTypeToString(IndividualType type) {
     switch (type) {

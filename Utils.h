@@ -1,6 +1,5 @@
 #pragma once
 #include <string>
-#include <array>
 #include "Game.h"
 
 const static int dirX[] = {1, 1, 0, -1, -1, -1, 0, 1};

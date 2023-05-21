@@ -1,7 +1,3 @@
-//
-// Created by anna on 5/14/23.
-//
-
 #ifndef OOP_ASCENDANT_H
 #define OOP_ASCENDANT_H
 
