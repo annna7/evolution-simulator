@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ostream>
+#include <memory>
 #include "Cell.h"
 
 // abstract class since it doesn't implement getColor()
@@ -16,12 +17,10 @@ public:
     [[nodiscard]] virtual int getSpeed() const;
     [[nodiscard]] virtual int getHunger() const;
     [[nodiscard]] virtual int getVision() const;
-    [[nodiscard]] virtual int getType() const = 0;
     [[nodiscard]] int getPosition() const;
     void setCoords(int x, int y);
     virtual void eat();
     void move();
-
     [[nodiscard]] bool checkIfAlive() const;
 
 private:

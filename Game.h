@@ -13,7 +13,9 @@
 #include "Food.h"
 #include "Cell.h"
 #include "Suitor.h"
+#include "IndividualType.h"
 
+// altfel crapa
 template <typename T> class Suitor;
 
 class Game {
@@ -24,16 +26,17 @@ public:
     Game& operator=(const Game &other) = delete;
     ~Game();
     friend std::ostream &operator<<(std::ostream &os, const Game &game);
+    template <typename T>
+    bool checkSuitor(std::shared_ptr<Individual> a, std::shared_ptr<T> b);
 
 private:
-    std::unordered_map<int, std::pair<int, int>> fitnessMap;
+    std::unordered_map<IndividualType, int> survivorMap;
     std::vector<std::shared_ptr<Cell>> board;
     std::vector<std::shared_ptr<Cell>> futureBoard;
     std::vector<sf::Vertex> displayMatrix;
+    std::unordered_map<IndividualType, int> currentGeneration;
 
-    int width;
-    int height;
-    int keystoneNumber, clairvoyantNumber, redBullNumber, ascendantNumber, suitorNumber;
+    int width, height;
     int quantityOfFood;
 
     sf::Clock clock;
@@ -55,19 +58,20 @@ private:
     const static std::unordered_map<int, std::string> raceDict;
     void showStatistics();
     int findFoodInRange(const std::shared_ptr<Individual>&, int radius);
-    std::unordered_map<int, int> computeNewGeneration();
-    void resetGeneration(std::unordered_map<int, int> generation);
+    std::unordered_map<IndividualType, int> computeNewGeneration();
     void resetBoard();
-    int getTotalSurvivalRate();
+    int getTotalSurvivalRate() const;
 
     template <typename K>
     void mate(std::shared_ptr<K> indiv, std::shared_ptr<Suitor<K>> suitor);
-
-    template <typename T>
-    bool checkSuitor(std::shared_ptr<Individual> a, std::shared_ptr<T> b);
-
     int findFreeSpot(int pos, int radius);
 
     template <typename T>
     void produceOffspring(int pos);
+
+    void assertFitnessOfIndividual(const std::shared_ptr<Individual>& individual);
+
+    void resetGeneration(std::unordered_map<IndividualType, int> generation);
+
+    int getTotalIndividuals() const;
 };

@@ -4,26 +4,22 @@
 #include "Individual.h"
 #include "Cell.h"
 #include "CellFactory.h"
+#include "IndividualType.h"
 #include <SFML/Graphics.hpp>
 
-const std::unordered_map<int, std::string> Game::raceDict = {
-        {RED_BULL, "RedBull"},
-        {KEY_STONE, "Keystone"},
-        {CLAIRVOYANT, "Clairvoyant"},
-        {ASCENDANT, "Ascendant"},
-        {SUITOR, "Suitor"}
-};
 
 template<typename K>
 void Game::produceOffspring(int pos) {
-    auto freeSpot = findFreeSpot(pos, 10);
+    auto freeSpot = findFreeSpot(pos, 15);
     if (freeSpot == -1) {
         return;
     }
     auto offspring = CellFactory::createSuitor<K>(freeSpot / width, freeSpot % width);
-    offspring->eat();
-    offspring->eat();
-    offspring->eat();
+
+    // Each baby starts off with 3 food points at birth.
+    for (int i = 0; i < 3; ++i) {
+        offspring->eat();
+    }
     futureBoard[freeSpot] = offspring;
 }
 
@@ -33,7 +29,9 @@ void Game::mate(std::shared_ptr<K> indiv, std::shared_ptr<Suitor<K>> suitor) {
         return;
     }
 
-    for (int i = 0; i < 3; ++i) {
+    // When a couple mates, they can either produce one, two, three, four or five babies - this number gets chosen randomly.
+    int offspringQuantity = randomIntegerFromInterval(1, 5);
+    for (int i = 0; i < offspringQuantity; ++i) {
         produceOffspring<K>(indiv->getPosition());
     }
     std::cout << "Mating!" << std::endl;
@@ -48,23 +46,37 @@ Game &Game::getInstance() {
 // Total number of survivors: p1 * x1 + p2 * x2 + ...
 // Total number of individuals: x1 + x2 + ...
 // Number of individuals of given species, proportional to their fitness: (p1 * x1 / (total number of survivors)) * (total number of individuals)
-std::unordered_map<int, int> Game::computeNewGeneration() {
-    std::unordered_map<int, int> newGeneration;
-    int totalIndividuals = 0;
-    int totalSurvivors = 0;
-    for (auto &it : fitnessMap) {
-        totalSurvivors += it.second.second;
-        totalIndividuals += it.second.first;
+std::unordered_map<IndividualType, int> Game::computeNewGeneration() {
+    std::unordered_map<IndividualType, int> newGeneration;
+    int totalIndividuals = getTotalIndividuals();
+    int totalSurvivors = getTotalSurvivalRate() * totalIndividuals / 100;
+    if (totalSurvivors == 0) {
+        return currentGeneration;
     }
-    try {
-        for (auto &it : fitnessMap) {
-            newGeneration[it.first] = it.second.first == 0 ? 0 : (int) ((1.0 * it.second.second / it.second.first) * it.second.first * totalIndividuals) / totalSurvivors;
-        }
-    } catch (std::exception &e) {
-        std::cout << e.what() << "\n";
+    for (auto type = (IndividualType)(INDIVIDUAL_TYPE_BEGIN + 1); type != INDIVIDUAL_TYPE_END; type = (IndividualType) (type + 1)) {
+        newGeneration[type] = currentGeneration[type] == 0 ? 0 : (int) ((1.0 * survivorMap[type] / currentGeneration[type]) * currentGeneration[type] * totalIndividuals) / totalSurvivors;
     }
-
     return newGeneration;
+}
+
+void Game::assertFitnessOfIndividual(const std::shared_ptr<Individual>& individual) {
+    if (!individual->checkIfAlive()) {
+        if (individual->getPosition() >= 0 && individual->getPosition() < width * height) {
+            board[individual->getPosition()] = nullptr;
+        }
+    } else {
+        if (dynamic_pointer_cast<Keystone>(individual)) {
+            survivorMap[KEYSTONE_TYPE] += 1;
+        } else if (std::dynamic_pointer_cast<Clairvoyant>(individual)) {
+            survivorMap[CLAIRVOYANT_TYPE] += 1;
+        } else if (std::dynamic_pointer_cast<RedBull>(individual)) {
+            survivorMap[REDBULL_TYPE] += 1;
+        } else if (std::dynamic_pointer_cast<Ascendant>(individual)) {
+            survivorMap[ASCENDANT_TYPE] += 1;
+        } else {
+            survivorMap[SUITOR_TYPE] += 1;
+        }
+    }
 }
 
 void Game::computeFitness() {
@@ -74,13 +86,7 @@ void Game::computeFitness() {
             // for instance, if I pass a Redbull, check if the cell is a Redbull
             auto individualCell = dynamic_pointer_cast<Individual>(cell);
             if (individualCell != nullptr) {
-                fitnessMap[individualCell->getType()].first += 1;
-                if (!individualCell->checkIfAlive()) {
-                    if (individualCell->getPosition() >= 0 && individualCell->getPosition() < width * height)
-                        board[individualCell->getPosition()] = nullptr;
-                } else {
-                    fitnessMap[individualCell->getType()].second += 1;
-                }
+                assertFitnessOfIndividual(individualCell);
             }
         }
     }
@@ -159,11 +165,11 @@ void Game::display() {
                         futureBoard[newPosition] = individual;
                     } else if (auto individualFound = dynamic_pointer_cast<Individual>(futureBoard[newPosition])){
                         // check whether one of them is a suitor
+                        // can this be done more efficiently?
                         if (checkSuitor<Clairvoyant>(individual, dynamic_pointer_cast<Clairvoyant>(individualFound))
                                 || checkSuitor<RedBull>(individual, dynamic_pointer_cast<RedBull>(individualFound))
                                         || checkSuitor<Keystone>(individual, dynamic_pointer_cast<Keystone>(individualFound))
-                                                || checkSuitor<Ascendant>(individual, dynamic_pointer_cast<Ascendant>(individualFound))) {
-                        }
+                                                || checkSuitor<Ascendant>(individual, dynamic_pointer_cast<Ascendant>(individualFound))) {}
                         int freePosition = findFreeSpot(individual->getPosition(), 5);
                         if (freePosition != -1) {
                             futureBoard[freePosition] = individual;
@@ -187,13 +193,21 @@ void Game::display() {
 }
 
 Game::Game() : width(MAX_X),
-               height(MAX_Y),
-               keystoneNumber(promptUser("[YELLOW] Specify the desired number of Keystone's (no special abilities, but can sustain on a small quantity of food):", 0, 600)),
-               clairvoyantNumber(promptUser("[BLUE] Specify the desired number of Clairvoyant's (can spot food from afar):", 0, 600)),
-               redBullNumber(promptUser("[RED] Specify the desired number of RedBull's (fast on their feet, but high hunger):", 0, 600)),
-               ascendantNumber(promptUser("[PINK] Specify the desired number of Ascendant's (become overpowered once they eat the first time):", 0, 600)),
-               suitorNumber(promptUser("[GRAY] Specify the desired number of Suitor's (each Suitor wants to mate with a specific breed of individuals described above (which will get picked randomly).):", 0, 600)),
-               quantityOfFood(promptUser("[DARK GREEN] Specify the desired quantity of food", 0,2000)) {
+               height(MAX_Y)
+//               currentGeneration[KEYSTONE_TYPE](promptUser("[YELLOW] Specify the desired number of Keystone's (no special abilities, but can sustain on a small quantity of food):", 0, 600)),
+//               currentGeneration[CLAIRVOYANT_TYPE](promptUser("[BLUE] Specify the desired number of Clairvoyant's (can spot food from afar):", 0, 600)),
+//               currentGeneration[REDBULL_TYPE](promptUser("[RED] Specify the desired number of RedBull's (fast on their feet, but high hunger):", 0, 600)),
+//               currentGeneration[ASCENDANT_TYPE](promptUser("[PINK] Specify the desired number of Ascendant's (become overpowered once they eat the first time):", 0, 600)),
+//               currentGeneration[SUITOR_TYPE](promptUser("[GRAY] Specify the desired number of Suitor's (each Suitor wants to mate with a specific breed of individuals described above (which will get picked randomly).):", 0, 600)),
+//               quantityOfFood(promptUser("[DARK GREEN] Specify the desired quantity of food", 0, 2500))
+{
+    currentGeneration[KEYSTONE_TYPE] = promptUser("[YELLOW] Specify the desired number of Keystone's (no special abilities, but can sustain on a small quantity of food):", 0, 600);
+    currentGeneration[CLAIRVOYANT_TYPE] = promptUser("[BLUE] Specify the desired number of Clairvoyant's (can spot food from afar):", 0, 600);
+    currentGeneration[REDBULL_TYPE] = promptUser("[RED] Specify the desired number of RedBull's (fast on their feet, but very hungry!)", 0, 600);
+    currentGeneration[ASCENDANT_TYPE] = promptUser("[PINK] Specify the desired number of Ascendant's (become much stronger once they encounter food for the first time", 0, 600);
+    currentGeneration[SUITOR_TYPE] = promptUser("[SUITOR] Specify the desired number of Suitor's - each Suitor wants to mate with a specific breed of Individuals, which gets generated randomly.", 0, 600);
+    quantityOfFood = promptUser("[DARK GREEN] Specify the desired quantity of food", 0, 2500);
+    clock.restart();
     window.create(sf::VideoMode(width * Cell::CELL_SIZE, height * Cell::CELL_SIZE + BOTTOM_BAR_HEIGHT), "Game of Life");
     initializeFont(font);
     epochCounter = 0;
@@ -208,27 +222,30 @@ void Game::generateCells() {
     board.resize(width * height);
     futureBoard.resize(width * height);
     int lowerBound = 0;
-    auto randomPositions = generateRandomArray(keystoneNumber + clairvoyantNumber + ascendantNumber + redBullNumber + suitorNumber + quantityOfFood, 0, width * height);
-    for (int i = lowerBound; i < lowerBound + keystoneNumber; i++) {
+
+    std::cout << getTotalIndividuals() << std::endl;
+
+    auto randomPositions = generateRandomArray(getTotalIndividuals() + quantityOfFood, 0, width * height);
+    for (int i = lowerBound; i < lowerBound + currentGeneration[KEYSTONE_TYPE]; i++) {
         board[randomPositions[i]] = CellFactory::createKeystone(randomPositions[i] / height, randomPositions[i] % height);
     }
-    lowerBound += keystoneNumber;
-    for (int i = lowerBound; i < lowerBound + clairvoyantNumber; i++) {
+    lowerBound += currentGeneration[KEYSTONE_TYPE];
+    for (int i = lowerBound; i < lowerBound + currentGeneration[CLAIRVOYANT_TYPE]; i++) {
         board[randomPositions[i]] = CellFactory::createClairvoyant(randomPositions[i] / height, randomPositions[i] % height);
     }
-    lowerBound += clairvoyantNumber;
-    for (int i = lowerBound; i < lowerBound + redBullNumber; i++) {
+    lowerBound += currentGeneration[CLAIRVOYANT_TYPE];
+    for (int i = lowerBound; i < lowerBound + currentGeneration[REDBULL_TYPE]; i++) {
         board[randomPositions[i]] = CellFactory::createRedBull(randomPositions[i] / height, randomPositions[i] % height);
     }
-    lowerBound += redBullNumber;
-    for (int i = lowerBound; i < lowerBound + ascendantNumber; i++) {
+    lowerBound += currentGeneration[REDBULL_TYPE];
+    for (int i = lowerBound; i < lowerBound + currentGeneration[ASCENDANT_TYPE]; i++) {
         board[randomPositions[i]] = CellFactory::createAscendant(randomPositions[i] / height, randomPositions[i] % height);
     }
-    lowerBound += ascendantNumber;
-    for (int i = lowerBound; i < lowerBound + suitorNumber; i++) {
+    lowerBound += currentGeneration[ASCENDANT_TYPE];
+    for (int i = lowerBound; i < lowerBound + currentGeneration[SUITOR_TYPE]; i++) {
         board[randomPositions[i]] = CellFactory::createSuitor(randomPositions[i] / height, randomPositions[i] % height);
     }
-    lowerBound += suitorNumber;
+    lowerBound += currentGeneration[SUITOR_TYPE];
     for (int i = lowerBound; i < lowerBound + quantityOfFood; i++) {
         board[randomPositions[i]] = CellFactory::createFood(randomPositions[i] / height, randomPositions[i] % height);
     }
@@ -239,7 +256,7 @@ Game::~Game() {
 }
 
 std::ostream &operator<<(std::ostream &os, const Game &game) {
-    os << " width: " << game.width << " height: " << game.height << " numberOfIndividuals: " << game.keystoneNumber + game.clairvoyantNumber + game.redBullNumber
+    os << " width: " << game.width << " height: " << game.height << " numberOfIndividuals: " << game.getTotalIndividuals()
        << " numberOfFood: " << game.quantityOfFood;
     return os;
 }
@@ -307,14 +324,20 @@ int Game::findFoodInRange(const std::shared_ptr<Individual>& individual, int rad
     return -1;
 }
 
-int Game::getTotalSurvivalRate() {
-    int totalSurvivalRate = 0;
+int Game::getTotalIndividuals() const {
     int totalIndividuals = 0;
-    for (auto &i : raceDict) {
-        totalSurvivalRate += fitnessMap[i.first].second;
-        totalIndividuals += fitnessMap[i.first].first;
+    for (auto individualType = (IndividualType)(INDIVIDUAL_TYPE_BEGIN + 1); individualType != INDIVIDUAL_TYPE_END; individualType = (IndividualType)(individualType + 1)) {
+        totalIndividuals += currentGeneration.at(individualType);
     }
-    return (int) (100.0 * totalSurvivalRate / totalIndividuals);
+    return totalIndividuals;
+}
+
+int Game::getTotalSurvivalRate() const {
+    int totalSurvivalRate = 0;
+    for (auto individualType = (IndividualType)(INDIVIDUAL_TYPE_BEGIN + 1); individualType != INDIVIDUAL_TYPE_END; individualType = (IndividualType)(individualType + 1)) {
+        totalSurvivalRate += survivorMap.at(individualType);
+    }
+    return (int) (100.0 * totalSurvivalRate / getTotalIndividuals());
 }
 
 void Game::showStatistics() {
@@ -324,49 +347,36 @@ void Game::showStatistics() {
     text.setFillColor(sf::Color::White);
     text.setPosition(20, (float)height * Cell::CELL_SIZE + 20);
     std::string output;
-    for (auto &i : raceDict) {
-        // append to text
-        output += i.second + " - " + getPercentage(fitnessMap[i.first].second, fitnessMap[i.first].first) + "( " + std::to_string(fitnessMap[i.first].second) + " / " + std::to_string(fitnessMap[i.first].first) + " )\n";
+
+    for (auto type = (IndividualType)(INDIVIDUAL_TYPE_BEGIN + 1); type != INDIVIDUAL_TYPE_END; type = IndividualType(type + 1)) {
+        output += individualTypeToString(type) + ": " +
+                  getPercentage(survivorMap[type], currentGeneration[type]) +
+                  "( " + std::to_string(survivorMap[type]) + " / " + std::to_string(currentGeneration[type]) + ")\n";
     }
     output += "Total survival rate: " + std::to_string(getTotalSurvivalRate()) + "%\n";
     text.setString(output);
     window.draw(text);
 }
 
-void Game::resetGeneration(std::unordered_map<int, int> generation) {
-    keystoneNumber = generation[KEY_STONE];
-    clairvoyantNumber = generation[CLAIRVOYANT];
-    redBullNumber = generation[RED_BULL];
-    ascendantNumber = generation[ASCENDANT];
-    suitorNumber = generation[SUITOR];
+void Game::resetGeneration(std::unordered_map<IndividualType, int> generation) {
+    for (auto individualType = (IndividualType)(INDIVIDUAL_TYPE_BEGIN + 1); individualType != INDIVIDUAL_TYPE_END; individualType = (IndividualType)(individualType + 1)) {
+        currentGeneration[individualType] = generation[individualType];
+        survivorMap[individualType] = 0;
+    }
     resetBoard();
 }
 
 void Game::resetBoard() {
-    fitnessMap.clear();
+    survivorMap.clear();
     generateCells();
     initializeDisplay();
 }
 
-//template <typename T>
-//std::shared_ptr<Suitor<T>> Game::checkSuitor(std::shared_ptr<Individual> a, std::shared_ptr<Individual> b) {
-//    if (dynamic_cast<Suitor<T>*>(a.get()) && dynamic_cast<T*>(b.get())) {
-//        return dynamic_pointer_cast<Suitor<Keystone>>(a);
-//    } else if (dynamic_cast<Suitor<Clairvoyant>*>(a.get()) && dynamic_cast<Clairvoyant*>(b.get())) {
-//        return dynamic_pointer_cast<Suitor<Clairvoyant>>(a);
-//    } else if (dynamic_cast<Suitor<Ascendant>*>(a.get()) && dynamic_cast<Ascendant*>(b.get())) {
-//        return dynamic_pointer_cast<Suitor<Ascendant>>(a);
-//    } else if (dynamic_cast<Suitor<RedBull>*>(a.get()) && dynamic_cast<RedBull*>(b.get())) {
-//        return std::dynamic_pointer_cast<RedBull>(a);
-//    } else {
-//        return nullptr;
-//    }
-//}
 
 template <typename T>
 bool Game::checkSuitor(std::shared_ptr<Individual> a, std::shared_ptr<T> b) {
 
-    if (std::shared_ptr<Suitor<T>> suitor = dynamic_pointer_cast<Suitor<T>>(a)) {
+    if (dynamic_pointer_cast<Suitor<T>>(a)) {
         mate<T>(b, dynamic_pointer_cast<Suitor<T>>(a));
         return true;
     }

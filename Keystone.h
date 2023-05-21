@@ -12,7 +12,6 @@
 class Keystone : public Individual {
 public:
     Keystone(int x, int y) : Individual(x, y) {}
-    [[nodiscard]] int getType() const override { return KEY_STONE; }
     [[nodiscard]] sf::Color getColor() override { return sf::Color::Yellow; }
 };
 

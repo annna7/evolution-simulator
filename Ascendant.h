@@ -15,7 +15,6 @@ public:
     Ascendant(int x, int y) : Individual(x, y) {
         hasEaten = false;
     }
-    [[nodiscard]] int getType() const override { return ASCENDANT; }
     [[nodiscard]] sf::Color getColor() override { return sf::Color::Magenta; }
     [[nodiscard]] int getHunger() const override { return 2; }
     void eat() override {
