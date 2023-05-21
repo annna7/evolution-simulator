@@ -1,9 +1,7 @@
-//
-// Created by anna on 3/25/23.
-//
 
 #include "Individual.h"
 #include "Utils.h"
+#include "Exceptions.h"
 
 Individual::Individual(int x, int y) : x(x), y(y), health(0), direction(randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS - 1)), speed(DEFAULT_SPEED) {}
 
@@ -23,19 +21,21 @@ void Individual::move() {
         direction = randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS - 1);
     }
 
-    const int OFFSET = 50;
-    if (x < 0) {
-        x = OFFSET;
-    } else if (x > MAX_X) {
-        x = MAX_X - OFFSET;
-    }
+    try {
+        checkCoordinates(x, y);
+    } catch (InvalidIndividualPositionException &e) {
+        if (x < 0) {
+            x = OFFSET;
+        } else if (x > MAX_X) {
+            x = MAX_X - OFFSET;
+        }
 
-    if (y < 0) {
-        y = OFFSET;
-    } else if (y > MAX_Y) {
-        y = MAX_Y - OFFSET;
+        if (y < 0) {
+            y = OFFSET;
+        } else if (y > MAX_Y) {
+            y = MAX_Y - OFFSET;
+        }
     }
-
 }
 
 

@@ -68,10 +68,7 @@ private:
 
     template <typename T>
     void produceOffspring(int pos);
-
     void assertFitnessOfIndividual(const std::shared_ptr<Individual>& individual);
-
     void resetGeneration(std::unordered_map<IndividualType, int> generation);
-
     int getTotalIndividuals() const;
 };

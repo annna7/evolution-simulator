@@ -1,7 +1,3 @@
-//
-// Created by anna on 5/14/23.
-//
-
 #include "Utils.h"
 #include "Individual.h"
 #include "Ascendant.h"
@@ -10,6 +6,7 @@
 #include "Keystone.h"
 #include "Clairvoyant.h"
 #include "CellFactory.h"
+#include "Exceptions.h"
 
 
 std::shared_ptr<Ascendant> CellFactory::createAscendant(int x, int y) {
@@ -59,7 +56,11 @@ std::shared_ptr<Individual> CellFactory::createIndividual(int x, int y, Individu
             return createClairvoyant(x, y);
         case SUITOR_TYPE:
             return createSuitor(x, y);
+        case INDIVIDUAL_TYPE_BEGIN:
+            throw InvalidIndividualTypeException(INDIVIDUAL_TYPE_BEGIN);
+        case INDIVIDUAL_TYPE_END:
+            throw InvalidIndividualTypeException(INDIVIDUAL_TYPE_END);
         default:
-            return nullptr;
+            throw InvalidIndividualTypeException(type);
     }
 }

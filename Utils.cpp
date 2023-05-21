@@ -2,6 +2,8 @@
 #include <string>
 #include <random>
 #include <SFML/Graphics/Font.hpp>
+#include "Exceptions.h"
+#include "Utils.h"
 
 int promptUser(const std::string& message, int mn, int mx) {
     int input;
@@ -22,7 +24,7 @@ int randomIntegerFromInterval(int mn, int mx) {
 
 void initializeFont(sf::Font& font) {
     if (!font.loadFromFile("assets/RobotoMono-Regular.ttf")) {
-        std::cout << "Error loading font\n";
+        throw FontLoadingException("assets/RobotoMono-Regular.ttf", "Roboto Mono");
     }
 }
 
@@ -48,4 +50,14 @@ std::string getPercentage(int newStat, int oldStat) {
     } else {
         return std::to_string((newStat * 100) / oldStat) + "% survived.";
     }
+}
+
+void checkCoordinates(int x, int y) {
+    if (x < 0 || x >= MAX_X || y < 0 || y >= MAX_Y) {
+        throw InvalidIndividualPositionException(x, y);
+    }
+}
+
+void checkCoordinates(int pos) {
+    return checkCoordinates(pos / MAX_X, pos % MAX_X);
 }

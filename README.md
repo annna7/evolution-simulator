@@ -16,11 +16,11 @@ As each epoch ends, observe the evolution of a wide variety of species as they s
 - The fitness of each species is used to determine the number of individuals of that species that will be spawned in the next epoch.
 - The simulation pauses automatically when an epoch ends. It can be restarted by the user by pressing the space bar, if they want to observe the evolution of the species in the next epoch.
 - The types of individuals that can be spawned are the following:
-  - **Keystones**: they don't have any special abilities, but they need a small quantity of food.
-  - **RedBulls**: they are very fast, but they need to eat a lot of food.
-  - **Ascendants**: limited at the beginning, but they get stronger once they eat the first time.
-  - **Clairvoyants**: they can see the food in the cells around them, but they need a large quantity of food.
-  - **Suitors**: they want to mate with a specific type of individual to produce more of their kind.
+  - **Keystone's**: they don't have any special abilities, but they need a small quantity of food.
+  - **RedBull's**: they are very fast, but they need to eat a lot of food.
+  - **Ascendant's**: limited at the beginning, but they get stronger once they eat the first time.
+  - **Clairvoyant's**: they can see the food in the cells around them, but they need a large quantity of food.
+  - **Suitor's**: they want to mate with a specific type of individual to produce more of their kind.
   
 ### Tema 0
 
@@ -56,9 +56,9 @@ As each epoch ends, observe the evolution of a wide variety of species as they s
   - [x] smart pointers
   - [x] `dynamic_cast`
 - [x] suprascris cc/op= pentru copieri/atribuiri corecte, copy and swap
-- [ ] excepții
-  - [ ] ierarhie proprie cu baza `std::exception` sau derivată din `std::exception`; minim 2 clase pentru erori specifice
-  - [ ] utilizare cu sens: de exemplu, `throw` în constructor, `try`/`catch` în `main`
+- [x] excepții
+  - [x] ierarhie proprie cu baza `std::exception` sau derivată din `std::exception`; minim 2 clase pentru erori specifice
+  - [x] utilizare cu sens: de exemplu, `throw` în constructor, `try`/`catch` în `main`
 - [x] funcții și atribute `static`
 - [x] STL
 - [x] cât mai multe `const`

@@ -13,7 +13,9 @@ std::string individualTypeToString(IndividualType type) {
             return "Suitor";
         case REDBULL_TYPE:
             return "RedBull";
-        default:
-            return "Not an Individual Type.";
+        case INDIVIDUAL_TYPE_BEGIN:
+            return "Begin Placeholder";
+        case INDIVIDUAL_TYPE_END:
+            return "End Placeholder";
     }
 }

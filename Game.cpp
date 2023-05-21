@@ -5,15 +5,13 @@
 #include "Cell.h"
 #include "CellFactory.h"
 #include "IndividualType.h"
+#include "Exceptions.h"
 #include <SFML/Graphics.hpp>
 
 
 template<typename K>
 void Game::produceOffspring(int pos) {
     auto freeSpot = findFreeSpot(pos, 15);
-    if (freeSpot == -1) {
-        return;
-    }
     auto offspring = CellFactory::createSuitor<K>(freeSpot / width, freeSpot % width);
 
     // Each baby starts off with 3 food points at birth.
@@ -32,9 +30,14 @@ void Game::mate(std::shared_ptr<K> indiv, std::shared_ptr<Suitor<K>> suitor) {
     // When a couple mates, they can either produce one, two, three, four or five babies - this number gets chosen randomly.
     int offspringQuantity = randomIntegerFromInterval(1, 5);
     for (int i = 0; i < offspringQuantity; ++i) {
-        produceOffspring<K>(indiv->getPosition());
+        // If there are no more empty spots on the board, the mating process stops.
+        try {
+            produceOffspring<K>(indiv->getPosition());
+        } catch (const RanOutOfEmptyPositionsException &e) {
+            std::cout << e.what() << std::endl;
+        }
     }
-    std::cout << "Mating!" << std::endl;
+    std::cout << "Successful mating!" << std::endl;
 }
 
 
@@ -51,7 +54,7 @@ std::unordered_map<IndividualType, int> Game::computeNewGeneration() {
     int totalIndividuals = getTotalIndividuals();
     int totalSurvivors = getTotalSurvivalRate() * totalIndividuals / 100;
     if (totalSurvivors == 0) {
-        return currentGeneration;
+        throw NoSurvivorsException(epochCounter);
     }
     for (auto type = (IndividualType)(INDIVIDUAL_TYPE_BEGIN + 1); type != INDIVIDUAL_TYPE_END; type = (IndividualType) (type + 1)) {
         newGeneration[type] = currentGeneration[type] == 0 ? 0 : (int) ((1.0 * survivorMap[type] / currentGeneration[type]) * currentGeneration[type] * totalIndividuals) / totalSurvivors;
@@ -60,10 +63,9 @@ std::unordered_map<IndividualType, int> Game::computeNewGeneration() {
 }
 
 void Game::assertFitnessOfIndividual(const std::shared_ptr<Individual>& individual) {
+    checkCoordinates(individual->getPosition());
     if (!individual->checkIfAlive()) {
-        if (individual->getPosition() >= 0 && individual->getPosition() < width * height) {
-            board[individual->getPosition()] = nullptr;
-        }
+        board[individual->getPosition()] = nullptr;
     } else {
         if (dynamic_pointer_cast<Keystone>(individual)) {
             survivorMap[KEYSTONE_TYPE] += 1;
@@ -86,7 +88,11 @@ void Game::computeFitness() {
             // for instance, if I pass a Redbull, check if the cell is a Redbull
             auto individualCell = dynamic_pointer_cast<Individual>(cell);
             if (individualCell != nullptr) {
-                assertFitnessOfIndividual(individualCell);
+                try {
+                    assertFitnessOfIndividual(individualCell);
+                } catch (const InvalidIndividualPositionException &e) {
+                    std::cout << e.what() << std::endl;
+                }
             }
         }
     }
@@ -104,7 +110,13 @@ void Game::endEpoch() {
     epochCounter++;
     computeFitness();
     showStatistics();
-    resetGeneration(computeNewGeneration());
+    try {
+        resetGeneration(computeNewGeneration());
+    } catch (const NoSurvivorsException &e) {
+        std::cout << e.what() << std::endl;
+        std::cout << "Game over!" << std::endl;
+        window.close();
+    }
     isPaused = true;
 }
 
@@ -150,34 +162,36 @@ void Game::display() {
             updateDisplayMatrix(i);
             auto individual = dynamic_pointer_cast<Individual>(board[i]);
             if (individual != nullptr) {
-                int coords = findFoodInRange(individual, individual->getVision());
-                if (coords != -1 && dynamic_pointer_cast<Individual>(futureBoard[coords]) == nullptr) {
-                    futureBoard[coords] = individual;
-                    individual->setCoords(coords / height, coords % height);
-                    individual->eat();
-                } else {
+                try {
+                    int coords = findFoodInRange(individual, individual->getVision());
+                    if (!std::dynamic_pointer_cast<Individual>(futureBoard[coords])) {
+                        futureBoard[coords] = individual;
+                        individual->setCoords(coords / width, coords % width);
+                        individual->eat();
+                    }
+                } catch (const NoFoodException &e) {
                     individual->move();
                     int newPosition = individual->getPosition();
-                    if (newPosition > width * height - 1) {
-                        newPosition = newPosition % (width * height);
-                    }
-                    if (futureBoard[newPosition] == nullptr) {
-                        futureBoard[newPosition] = individual;
-                    } else if (auto individualFound = dynamic_pointer_cast<Individual>(futureBoard[newPosition])){
-                        // check whether one of them is a suitor
-                        // can this be done more elegantly?
-                        // checkSuitor needs to be called for the type of individualFound
-                        if (checkSuitor<Clairvoyant>(individual, dynamic_pointer_cast<Clairvoyant>(individualFound))
+                    try {
+                        checkCoordinates(newPosition);
+                        if (auto individualFound = dynamic_pointer_cast<Individual>(futureBoard[newPosition])) {
+                            // could this be done more elegantly?
+                            // took care of Suitor below, just need to call checkSuitor<typeof(individualFound)>, where individualFound is one of the basic Individual derived classes
+                            // i.e. Clairvoyant, RedBull, Keystone, Ascendant
+                            if (checkSuitor<Clairvoyant>(individual, dynamic_pointer_cast<Clairvoyant>(individualFound))
                                 || checkSuitor<RedBull>(individual, dynamic_pointer_cast<RedBull>(individualFound))
-                                        || checkSuitor<Keystone>(individual, dynamic_pointer_cast<Keystone>(individualFound))
-                                                || checkSuitor<Ascendant>(individual, dynamic_pointer_cast<Ascendant>(individualFound))) {}
-                        int freePosition = findFreeSpot(individual->getPosition(), 5);
-                        if (freePosition != -1) {
-                            futureBoard[freePosition] = individual;
+                                || checkSuitor<Keystone>(individual, dynamic_pointer_cast<Keystone>(individualFound))
+                                || checkSuitor<Ascendant>(individual, dynamic_pointer_cast<Ascendant>(individualFound))) {}
+                            try {
+                                int freePosition = findFreeSpot(individual->getPosition(), 5);
+                                futureBoard[freePosition] = individual;
+                            } catch (const RanOutOfEmptyPositionsException &e) {
+                                std::cout << e.what() << std::endl;
+                            }
+                        } else {
+                            futureBoard[newPosition] = individual;
                         }
-                    } else if (coords != -1) {
-                        futureBoard[coords] = individual;
-                    }
+                    } catch (const InvalidIndividualPositionException &e) {}
                 }
             } else {
                 auto individualEaten = dynamic_pointer_cast<Individual>(futureBoard[i]);
@@ -194,24 +208,23 @@ void Game::display() {
 }
 
 Game::Game() : width(MAX_X),
-               height(MAX_Y)
-//               currentGeneration[KEYSTONE_TYPE](promptUser("[YELLOW] Specify the desired number of Keystone's (no special abilities, but can sustain on a small quantity of food):", 0, 600)),
-//               currentGeneration[CLAIRVOYANT_TYPE](promptUser("[BLUE] Specify the desired number of Clairvoyant's (can spot food from afar):", 0, 600)),
-//               currentGeneration[REDBULL_TYPE](promptUser("[RED] Specify the desired number of RedBull's (fast on their feet, but high hunger):", 0, 600)),
-//               currentGeneration[ASCENDANT_TYPE](promptUser("[PINK] Specify the desired number of Ascendant's (become overpowered once they eat the first time):", 0, 600)),
-//               currentGeneration[SUITOR_TYPE](promptUser("[GRAY] Specify the desired number of Suitor's (each Suitor wants to mate with a specific breed of individuals described above (which will get picked randomly).):", 0, 600)),
-//               quantityOfFood(promptUser("[DARK GREEN] Specify the desired quantity of food", 0, 2500))
-{
+               height(MAX_Y) {
     currentGeneration[KEYSTONE_TYPE] = promptUser("[YELLOW] Specify the desired number of Keystone's (no special abilities, but can sustain on a small quantity of food):", 0, 600);
     currentGeneration[CLAIRVOYANT_TYPE] = promptUser("[BLUE] Specify the desired number of Clairvoyant's (can spot food from afar):", 0, 600);
     currentGeneration[REDBULL_TYPE] = promptUser("[RED] Specify the desired number of RedBull's (fast on their feet, but very hungry!)", 0, 600);
     currentGeneration[ASCENDANT_TYPE] = promptUser("[PINK] Specify the desired number of Ascendant's (become much stronger once they encounter food for the first time", 0, 600);
-    currentGeneration[SUITOR_TYPE] = promptUser("[SUITOR] Specify the desired number of Suitor's - each Suitor wants to mate with a specific breed of Individuals. Only RedBulls and Ascendants are charming enough to have Suitors running after them. The type of Suitor gets chosen randomly.",
+    currentGeneration[SUITOR_TYPE] = promptUser("[SUITOR] Specify the desired number of Suitor's - each Suitor wants to mate with a specific breed of Individuals. The type of Suitor gets chosen randomly at spawn time.",
                                                 0, 600);
     quantityOfFood = promptUser("[DARK GREEN] Specify the desired quantity of food", 0, 2500);
     clock.restart();
     window.create(sf::VideoMode(width * Cell::CELL_SIZE, height * Cell::CELL_SIZE + BOTTOM_BAR_HEIGHT), "Game of Life");
-    initializeFont(font);
+
+    try {
+        initializeFont(font);
+    } catch (const FontLoadingException &e) {
+        std::cout << e.what() << std::endl;
+    }
+
     epochCounter = 0;
     resetBoard();
     window.setVerticalSyncEnabled(true);
@@ -228,25 +241,22 @@ void Game::generateCells() {
     std::cout << getTotalIndividuals() << std::endl;
 
     auto randomPositions = generateRandomArray(getTotalIndividuals() + quantityOfFood, 0, width * height);
+
     for (auto type = (IndividualType)(INDIVIDUAL_TYPE_BEGIN + 1); type != INDIVIDUAL_TYPE_END; type = (IndividualType)(type + 1)) {
         for (int i = lowerBound; i < lowerBound + currentGeneration[type]; i++) {
-            board[randomPositions[i]] = CellFactory::createIndividual(randomPositions[i] / height, randomPositions[i] % height, type);
+            try {
+                board[randomPositions[i]] = CellFactory::createIndividual(randomPositions[i] / height, randomPositions[i] % height, type);
+            } catch (InvalidIndividualTypeException &e) {
+                std::cout << e.what() << std::endl;
+            }
         }
         lowerBound += currentGeneration[type];
     }
+
     for (int i = lowerBound; i < lowerBound + quantityOfFood; i++) {
         board[randomPositions[i]] = CellFactory::createFood(randomPositions[i] / height, randomPositions[i] % height);
     }
-}
 
-Game::~Game() {
-    std::cout << "Destructor called\n";
-}
-
-std::ostream &operator<<(std::ostream &os, const Game &game) {
-    os << " width: " << game.width << " height: " << game.height << " numberOfIndividuals: " << game.getTotalIndividuals()
-       << " numberOfFood: " << game.quantityOfFood;
-    return os;
 }
 
 void Game::initializeDisplay() {
@@ -289,7 +299,7 @@ int Game::findFreeSpot(int pos, int radius) {
             }
         }
     }
-    return -1;
+    throw RanOutOfEmptyPositionsException(x, y, radius);
 }
 
 
@@ -309,7 +319,7 @@ int Game::findFoodInRange(const std::shared_ptr<Individual>& individual, int rad
             }
         }
     }
-    return -1;
+    throw NoFoodException(x, y);
 }
 
 int Game::getTotalIndividuals() const {
@@ -370,4 +380,15 @@ bool Game::checkSuitor(std::shared_ptr<Individual> a, std::shared_ptr<T> b) {
     }
     return false;
 }
+
+Game::~Game() {
+    std::cout << "Destructor called\n";
+}
+
+std::ostream &operator<<(std::ostream &os, const Game &game) {
+    os << " width: " << game.width << " height: " << game.height << " numberOfIndividuals: " << game.getTotalIndividuals()
+       << " numberOfFood: " << game.quantityOfFood;
+    return os;
+}
+
 
