@@ -146,7 +146,7 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets
 #target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR})
 
 # NOTE: update executable name in .github/workflows/cmake.yml:25 when changing name here
-add_executable(${PROJECT_NAME} main.cpp Game.cpp Utils.cpp Individual.cpp Individual.h Food.cpp Food.h Cell.h RedBull.h Clairvoyant.h Keystone.h ${CMAKE_SOURCE_DIR}/assets/RobotoMono-Regular.ttf Ascendant.cpp Ascendant.h Suitor.cpp Suitor.h CellFactory.h CellFactory.cpp IndividualType.cpp Exceptions.h Exceptions.cpp)
+add_executable(${PROJECT_NAME} main.cpp Game.cpp Utils.cpp Individual.cpp Individual.h Food.cpp Food.h Cell.h RedBull.h Clairvoyant.h Keystone.h Ascendant.cpp Ascendant.h Suitor.cpp Suitor.h CellFactory.h CellFactory.cpp IndividualType.h IndividualType.cpp Exceptions.h Exceptions.cpp)
 
 ### INCLUDE SFML LIBRARY ###
 #find_package(SFML 2.5 COMPONENTS graphics audio REQUIRED)
@@ -196,6 +196,7 @@ target_link_libraries(${PROJECT_NAME} sfml-graphics sfml-audio)
 # copy binaries to "bin" folder; these are uploaded as artifacts on each release
 # update name in .github/workflows/cmake.yml:29 when changing "bin" name here
 install(TARGETS ${PROJECT_NAME} DESTINATION bin)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/assets DESTINATION bin)
 # install(DIRECTORY some_dir1 some_dir2 DESTINATION bin)
 # install(FILES some_file1.txt some_file2.md DESTINATION bin)
 

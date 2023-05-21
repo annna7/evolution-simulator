@@ -20,10 +20,9 @@ void Individual::move() {
     if (randomIntegerFromInterval(0, RESET_DIRECTION_SEED) == 0) {
         direction = randomIntegerFromInterval(0, NUMBERS_OF_DIRECTIONS - 1);
     }
-
     try {
         checkCoordinates(x, y);
-    } catch (InvalidIndividualPositionException &e) {
+    } catch (const InvalidIndividualPositionException&) {
         if (x < 0) {
             x = OFFSET;
         } else if (x > MAX_X) {

@@ -169,7 +169,7 @@ void Game::display() {
                         individual->setCoords(coords / width, coords % width);
                         individual->eat();
                     }
-                } catch (const NoFoodException &e) {
+                } catch (const NoFoodException&) {
                     individual->move();
                     int newPosition = individual->getPosition();
                     try {
@@ -191,7 +191,7 @@ void Game::display() {
                         } else {
                             futureBoard[newPosition] = individual;
                         }
-                    } catch (const InvalidIndividualPositionException &e) {}
+                    } catch (const InvalidIndividualPositionException&) {}
                 }
             } else {
                 auto individualEaten = dynamic_pointer_cast<Individual>(futureBoard[i]);
