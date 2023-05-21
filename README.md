@@ -4,13 +4,16 @@ As each epoch ends, observe the evolution of a wide variety of species as they s
 
 ### Rules
 
-- Each species has a set of attributes that determine its behaviour.
+- Each species has a set of attributes that determine its behaviour. Each individual, regardless of species, has a certain fighting strategy, which determines how it will behave when it meets another individual. Suitors don't have a fighting strategy, as the only thing they care about is finding a mate.
 - The world is a 2D grid of cells, with each cell representing either a piece of food, an individual or nothing.
 - The goal of each species is to consume as much food as possible. Different species have different food requirements for surviving to the next epoch.
 - Each epoch, each individual moves randomly, each step being in one of the 8 directions (up, down, left, right, up-left, up-right, down-left, down-right).
 - If an individual moves on a cell with food, it consumes it and gets one step closer to fulfilling its food requirement.
-- If an individual moves on a cell with a suitor of its type, they mate and produce between 1 and 5 offspring.
-- Otherwise, if two individuals meet, both of them continue their movement.
+- If an individual moves on a cell with a suitor of its type, they mate and produce between 1 and 3 offsprings.
+- Otherwise, if two non-suitor individuals meet, they fight. Who wins the fight is determined by the fighting strategy of each individual. The rules are the following:
+  - If two **defensive** individuals meet, they both live.
+  - If two **offensive** individuals meet, one of them dies.
+  - If an **offensive** individual meets a **defensive** individual, the defensive individual dies.
 - At the end of each epoch, if an individual has not fulfilled its food requirement, it dies.
 - To compute the next generation, the fitness of each species is computed, taking into account the number of individuals of that species spawned at the beginning of the epoch and the number of individuals that survived.
 - The fitness of each species is used to determine the number of individuals of that species that will be spawned in the next epoch.
@@ -63,15 +66,15 @@ As each epoch ends, observe the evolution of a wide variety of species as they s
 - [x] STL
 - [x] cât mai multe `const`
 - [x] la sfârșit: commit separat cu adăugarea unei noi derivate fără a modifica restul codului
-- [ ] tag de `git`: de exemplu `v0.2`
+- [x] tag de `git`: de exemplu `v0.2`
 
 ## Tema 3
 
 #### Cerințe
-- [ ] 2 șabloane de proiectare (design patterns)
+- [x] 2 șabloane de proiectare (design patterns)
   - Singleton - clasa Game
   - Factory - clasa CellFactory
-  - Strategy - clasa FightingStrategy (**TODO**)
+  - Strategy - clasa FightingStrategy 
 - [x] o funcție șablon (template) cu sens; minim 2 instanțieri
 - [x] o clasă șablon cu sens; minim 2 instanțieri
 <!-- - [ ] o specializare pe funcție/clasă șablon -->

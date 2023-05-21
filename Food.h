@@ -12,7 +12,7 @@ public:
     Food& operator=(const Food &other);
     ~Food() override;
     friend std::ostream &operator<<(std::ostream &os, const Food &food);
-    sf::Color getColor() const override;
+    [[nodiscard]] sf::Color getColor() const override;
 
 private:
     int x, y;
